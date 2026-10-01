@@ -1415,7 +1415,7 @@ wheels = [
 
 [[package]]
 name = "volsegtools"
-version = "0.2.4"
+version = "0.2.5"
 source = { editable = "." }
 dependencies = [
     { name = "ciftools" },
@@ -1435,13 +1435,15 @@ dependencies = [
     { name = "tifffile" },
     { name = "trimesh" },
     { name = "typer" },
-    { name = "vrmlxpy" },
     { name = "zarr" },
 ]
 
 [package.optional-dependencies]
 dev = [
     { name = "pytest" },
+]
+vrml = [
+    { name = "vrmlxpy" },
 ]
 
 [package.dev-dependencies]
@@ -1474,10 +1476,10 @@ requires-dist = [
     { name = "tifffile", specifier = ">=2024.8.30" },
     { name = "trimesh", specifier = ">=4.11.5" },
     { name = "typer" },
-    { name = "vrmlxpy", specifier = ">=1.0.2" },
+    { name = "vrmlxpy", marker = "extra == 'vrml'" },
     { name = "zarr" },
 ]
-provides-extras = ["dev"]
+provides-extras = ["dev", "vrml"]
 
 [package.metadata.requires-dev]
 dev = [
