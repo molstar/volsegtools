@@ -4,7 +4,10 @@ from typing import ClassVar
 import json
 import tempfile
 
-import vrmlxpy as vrml
+try:
+    import vrmlxpy as vrml
+except ImportError:
+    vrml = None
 
 from volsegtools._conversion.mesh_converter import MeshConverter
 from volsegtools._model import PipelineContext
@@ -76,6 +79,11 @@ class VRMLConverter(Converter):
         input_path: Path,
         context: PipelineContext,
     ) -> list[DataSet]:
+        if vrml is None:
+            raise RuntimeError(
+                "VRML support is not installed, you have to add the optional dependency"
+            )
+
         with (
             tempfile.NamedTemporaryFile() as tmp_config,
             tempfile.NamedTemporaryFile() as tmp_synonyms,
@@ -96,7 +104,7 @@ class VRMLConverter(Converter):
             )
 
             mesh_converter = MeshConverter()
-            return await mesh_converter.convert_segmentation(Path(tmp_out.name))
+            return await mesh_converter.convert_segmentation(Path(tmp_out.name), context)
 
     async def collect_annotations(self, input_path, context) -> None:
         raise NotImplementedError
