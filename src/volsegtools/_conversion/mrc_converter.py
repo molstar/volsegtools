@@ -35,7 +35,11 @@ class MRCConverter(Converter):
     ) -> list[DataSet]:
         vst_logger.info(f"... converting '{input_path}'")
 
-        mrc = mrcfile.mmap(input_path, "r")
+        if input_path.suffix in [".gz", ".bz2"]:
+            mrc = mrcfile.open(input_path, "r")
+        else:
+            mrc = mrcfile.mmap(input_path, "r")
+
         if mrc.data is None or mrc.header is None:
             raise RuntimeError("Failed to read data from MAP file")
 
