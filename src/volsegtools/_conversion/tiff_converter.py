@@ -56,7 +56,7 @@ class TIFFConverter(Converter):
         axis_order = tuple("XYZ".index(ax) for ax in axes)
 
         data_set_info = DataSetInfo(
-            filename=input_path.stem,
+            filename=str(input_path),
             resolution=0,
             axis_order=AxisValues(*axis_order),
             cell_size=AxisValues(

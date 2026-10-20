@@ -151,14 +151,14 @@ class ImarisConverter(Converter):
         shape = channels[0].data.shape
 
         info = DataSetInfo(
-            filename=input_path.name,
+            filename=str(input_path),
             resolution=0,
             axis_order=AxisValues(2, 1, 0),
             cell_size=cell_size,
             origin=AxisValues(
                 metadata["ExtMin0"], metadata["ExtMin1"], metadata["ExtMin2"]
             ),
-            id=input_path.name,
+            id=input_path.stem,
             kind=DataKind.VOLUME,
             lattice_shape=AxisValues(
                 shape[0],

@@ -52,7 +52,7 @@ class CIFConverter(Converter):
             )
             data = da.from_array(data)
             data_set_info = DataSetInfo(
-                filename=input_path.name,
+                filename=str(input_path),
                 resolution=0,
                 axis_order=AxisValues(
                     metadata["axis_order[0]"].get_float(0),
