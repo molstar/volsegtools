@@ -316,6 +316,7 @@ def run(
         .add_volume_converter(vst.NGFFConverter())
         .add_volume_converter(vst.ImarisConverter())
         .add_volume_converter(vst.CIFConverter())
+        .add_volume_converter(vst.NumpyConverter())
         .add_segmentation_converter(vst.MeshConverter())
         .add_segmentation_converter(vst.NiiConverter())
         .add_segmentation_converter(vst.MRCConverter())
