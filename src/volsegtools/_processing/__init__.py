@@ -8,7 +8,17 @@ import from the `volsegtools` namespace.
 """
 
 from .dask_backend import DaskBackend
-from .error_evaluation_step import ErrorEvaluationMultiStep, ErrorEvaluationStep
+from .error_evaluation_step import (
+    HFEN,
+    MAE,
+    MSE,
+    PSNR,
+    RMSE,
+    SSIM,
+    ErrorEvaluationMultiStep,
+    ErrorEvaluationStep,
+    ErrorFunction,
+)
 from .mesh_backend import MeshBackend
 from .numpy_backend import NumPyBackend
 from .processing_pipeline import ProcessingPipeline
@@ -21,9 +31,16 @@ from .size_evaluation_step import (
 from .smoothing_step import SmoothingStep
 
 __all__ = [
+    "HFEN",
+    "MAE",
+    "MSE",
+    "PSNR",
+    "RMSE",
+    "SSIM",
     "DaskBackend",
     "ErrorEvaluationMultiStep",
     "ErrorEvaluationStep",
+    "ErrorFunction",
     "JSONSizeReporter",
     "MeshBackend",
     "NumPyBackend",
