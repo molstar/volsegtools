@@ -26,3 +26,10 @@ __all__ = [
     "Serializer",
     "TData",
 ]
+
+import inspect as _inspect
+
+for _name in __all__:
+    _obj = globals().get(_name)
+    if _inspect.isclass(_obj) or _inspect.isfunction(_obj):
+        _obj.__module__ = __name__
