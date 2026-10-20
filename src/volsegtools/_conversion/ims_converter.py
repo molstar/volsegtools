@@ -161,9 +161,9 @@ class ImarisConverter(Converter):
             id=input_path.stem,
             kind=DataKind.VOLUME,
             lattice_shape=AxisValues(
-                shape[0],
-                shape[1],
                 shape[2],
+                shape[1],
+                shape[0],
             ),
         )
 
