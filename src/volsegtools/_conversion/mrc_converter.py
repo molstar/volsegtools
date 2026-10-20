@@ -22,7 +22,7 @@ vst_logger = logging.getLogger("volsegtools")
 class MRCConverter(Converter):
     @property
     def supported_suffixes(self):
-        return ["mrc", "map", "cpp4"]
+        return ["mrc", "map", "ccp4"]
 
     @property
     def supports_compression(self) -> bool:
