@@ -58,12 +58,7 @@ class ProcessingPipelineBuilder:
 
         return suffixes
 
-    def add_segmentation_converter(
-        self,
-        converter: Converter,
-        suffixes: list[str] | None = None,
-        preserve_builtin: bool = False,
-    ) -> Self:
+    def add_segmentation_converter(self, converter: Converter) -> Self:
         """Add additional segmentation converter to the pipeline.
 
         There has to be atleast one volume or segmentation converter for a
@@ -84,16 +79,32 @@ class ProcessingPipelineBuilder:
         Self
             Reference to this builder.
         """
-        suffixes = self._mend_suffixes(converter, suffixes, preserve_builtin)
-        self._segmentation_converter_map.set_converter(converter, suffixes)
+        self._segmentation_converter_map.add_converter(converter)
         return self
 
-    def add_volume_converter(
-        self,
-        converter: Converter,
-        suffixes: list[str] | None = None,
-        preserve_builtin: bool = False,
-    ) -> Self:
+    def map_segmentation_converter(self, converter: Converter, extension: str) -> Self:
+        """Maps a segmentation converter to some file extension.
+
+        There has to be atleast one volume or segmentation converter for a
+        pipeline to be valid (for segmentation see
+        :meth:`~volsegtools.ProcessingPipelineBuilder.add_segmentation_converter`).
+
+        Parameters
+        ----------
+        converter
+            The converter which we want to add.
+        extension
+            The extension of files that the provide converter should convert.
+
+        Returns
+        -------
+        Self
+            Reference to this builder.
+        """
+        self._segmentation_converter_map.map_converter(converter, extension)
+        return self
+
+    def add_volume_converter(self, converter: Converter) -> Self:
         """Add additional volume converter to the pipeline.
 
         There has to be atleast one volume or segmentation converter for a
@@ -107,11 +118,32 @@ class ProcessingPipelineBuilder:
 
         Returns
         -------
-        Self:
+        Self
             Reference to this builder.
         """
-        suffixes = self._mend_suffixes(converter, suffixes, preserve_builtin)
-        self._volume_converter_map.set_converter(converter, suffixes)
+        self._volume_converter_map.add_converter(converter)
+        return self
+
+    def map_volume_converter(self, converter: Converter, extension: str) -> Self:
+        """Maps a volume converter to some file extension.
+
+        There has to be atleast one volume or segmentation converter for a
+        pipeline to be valid (for segmentation see
+        :meth:`~volsegtools.ProcessingPipelineBuilder.add_segmentation_converter`).
+
+        Parameters
+        ----------
+        converter
+            The converter which we want to add.
+        extension
+            The extension of files that the provide converter should convert.
+
+        Returns
+        -------
+        Self
+            Reference to this builder.
+        """
+        self._volume_converter_map.map_converter(converter, extension)
         return self
 
     def set_downsampling_strategy(self, strategy: DownsamplingStrategy) -> Self:
