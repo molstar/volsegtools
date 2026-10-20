@@ -117,7 +117,6 @@ class ImarisConverter(Converter):
         1. We take the origin (minimum) of the data extent.
         2. We take the maximum extent.
         3. We calculate the difference between the max and min extent.
-        4. We divide the differences by the number of samples in given axis.
         """
         # FIXME: This has to be refactored to work with multiple files
         info = next(iter(input_info.values()))
