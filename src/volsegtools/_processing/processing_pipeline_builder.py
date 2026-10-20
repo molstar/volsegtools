@@ -28,7 +28,7 @@ class ProcessingPipelineBuilder:
         self._volume_converter_map = ConverterMap()
         self._segmentation_converter_map = ConverterMap()
         self._bundler = None
-        self._keep_original = False
+        self._keep_original = True
         self._threshold = ProcessingPipeline.DEFAULT_SIZE_THRESHOLD
 
     def _mend_suffixes(
@@ -282,7 +282,7 @@ class ProcessingPipelineBuilder:
         self._work_dir = file_path
         return self
 
-    def keep_original(self, value: bool) -> Self:
+    def keep_original(self, value: bool = True) -> Self:
         """Set that the original resolution should be part of the output.
 
         Parameters
