@@ -1,9 +1,9 @@
 from pathlib import Path
 
-import ome_zarr.io
-import ome_zarr.reader
+import ngff_zarr as nz
 
 from volsegtools._core import AxisValues, DataKind
+from volsegtools._core.axis_values import create_reorder_permutation
 from volsegtools._model import DataSetInfo, PipelineContext
 from volsegtools._processing.dask_backend import DaskBackend
 from volsegtools._storage import DataSet
@@ -13,7 +13,7 @@ from volsegtools.abc import Converter
 class NGFFConverter(Converter):
     @property
     def supported_suffixes(self):
-        return ["zarr"]
+        return ["zarr", "ome.zarr"]
 
     @property
     def supports_compression(self) -> bool:
@@ -24,64 +24,62 @@ class NGFFConverter(Converter):
         input_path: Path,
         context: PipelineContext,
     ) -> list[DataSet]:
-        nodes = ome_zarr.reader.Reader(ome_zarr.io.ZarrLocation(input_path))()
-        data_node = next(nodes)
-        metadata = data_node.metadata
-        data_arr = data_node.data[0]
-
-        axis_order = {}
-        current_order = ""
-        for idx, ax in enumerate(metadata["axes"]):
-            axis_order[ax["name"]] = idx
-            if ax["name"] not in ["X", "Y", "Z"]:
-                continue
-            current_order += ax["name"]
-
-        # TODO: this is second time using this, it should be move to upper
-        # module.
-        reordering = tuple(current_order.find(ax) for ax in "XYZ")
-
-        # The 0 is for the 0th resolution
-        cell_size_info = metadata["coordinateTransformations"][0][0]["scale"]
-
-        info = DataSetInfo(
-            filename=input_path.name,
-            resolution=0,
-            axis_order=AxisValues(0, 1, 2),
-            cell_size=AxisValues(
-                100 * cell_size_info[axis_order["x"]],
-                100 * cell_size_info[axis_order["y"]],
-                100 * cell_size_info[axis_order["z"]],
-            ),
-            id=input_path.name,
-            kind=DataKind.VOLUME,
-            lattice_shape=AxisValues(
-                data_arr.shape[axis_order["x"]],
-                data_arr.shape[axis_order["y"]],
-                data_arr.shape[axis_order["z"]],
-            ),
-        )
-        data_set = DataSet(context.working_store, info)
-
-        # If we have time frames then we have to iterate over them
-        time_frames = data_arr if data_arr.ndim > 4 else [data_arr]
-
-        for frame_data in time_frames:
-            for idx, channel_data in enumerate(frame_data):
-                transposed = channel_data.transpose(reordering)
-                frame = data_set.add_time_frame()
-                channel = frame.add_channel(idx)
-                transposed = transposed.rechunk("auto")
-                channel.set_data(transposed, DaskBackend)
-
-        return [data_set]
+        return NGFFConverter._convert(input_path, context, DataKind.VOLUME)
 
     async def convert_segmentation(
         self,
         input_path: Path,
         context: PipelineContext,
     ) -> list[DataSet]:
-        raise await self.convert_volume(input_path, context)
+        return NGFFConverter._convert(input_path, context, DataKind.SEGMENTATION_VOLUME)
+
+    @staticmethod
+    def _convert(input_path: Path, context: PipelineContext, kind: DataKind):
+        pyramid = nz.from_ngff_zarr(input_path)
+
+        if not pyramid.images:
+            raise RuntimeError(f"No OME-NGFF images found in {input_path}")
+
+        original_res_img = pyramid.images[0]
+        dim_labels = [str(ax).lower() for ax in original_res_img.dims]
+        order = tuple(dim_labels.index(ax) for ax in "xyz")
+        new_order = create_reorder_permutation(order)
+        array = original_res_img.data.transpose(new_order)
+
+        shape = dict(zip(["x", "y", "z"], array.shape, strict=False))
+        spacing = original_res_img.scale
+        translation = tuple(original_res_img.translation[ax] for ax in "xyz")
+        cell_size = tuple(shape[ax] * spacing[ax] for ax in "xyz")
+
+        if ".ome" in input_path.suffixes:
+            dataset_id = Path(".".join(str(input_path).split(".")[:-2])).stem
+        else:
+            dataset_id = input_path.stem
+
+        info = DataSetInfo(
+            filename=str(input_path),
+            resolution=0,
+            axis_order=AxisValues(*order),
+            cell_size=AxisValues(*cell_size),
+            origin=AxisValues(*translation),
+            id=dataset_id,
+            kind=kind,
+            lattice_shape=AxisValues(*array.shape),
+        )
+        dataset = DataSet(context.working_store, info)
+
+        if "t" not in dim_labels:
+            array = array[None, ...]
+        if "c" not in dim_labels:
+            array = array[:, None, ...]
+
+        for frame_data in array:
+            frame = dataset.add_time_frame()
+            for idx, channel_data in enumerate(frame_data):
+                channel = frame.add_channel(idx)
+                channel.set_data(channel_data.rechunk("auto"), DaskBackend)
+
+        return [dataset]
 
     async def collect_annotations(self, input_path, context) -> None:
         raise NotImplementedError
