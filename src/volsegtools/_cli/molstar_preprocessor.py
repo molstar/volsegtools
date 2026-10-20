@@ -96,7 +96,7 @@ def get_downsampling_strategy(kind: DownsamplignAlgorithmKind):
         case DownsamplignAlgorithmKind.TRIQUINTIC:
             return vst.TriquinticInterpolation()
         case DownsamplignAlgorithmKind.TRIQUINTIC_NO_SMOOTH:
-            return vst.TriquinticInterpolation()
+            return vst.TriquinticInterpolation(zoom=1 / 3)
         case DownsamplignAlgorithmKind.SMOOTHING:
             return vst.Smoothing()
         case DownsamplignAlgorithmKind.STRIDED_SMOOTHING:
