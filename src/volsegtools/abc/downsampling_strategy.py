@@ -25,7 +25,7 @@ class DownsamplingStrategy(Protocol[TData]):
 
         Parameters
         ----------
-        data: Union[trimesh.Trimesh, Channel]
+        data
             Data that shall be downsampled by the algorithm implemented by
             the strategy. Some strategies might work with meshes and not
             channels.

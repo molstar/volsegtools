@@ -21,9 +21,9 @@ class Bundler(Protocol):
 
         Parameters
         ----------
-        data_paths : List[Path]
+        data_paths
             List of files that should be bundled together.
-        output_path: Path
+        output_path
             Path to which should the result be stored.
 
         Returns

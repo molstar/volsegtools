@@ -17,7 +17,7 @@ class DaskBackend(ComputationBackend):
 
     Attributes
     ----------
-    DEFAULT_CHUNKS: tuple[int, int, int]
+    DEFAULT_CHUNKS
         Loading from zarr is done using this default chunking. It should be
         reasonable size for most generic use-cases.
     """

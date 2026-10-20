@@ -10,21 +10,21 @@ class DataSetInfo(pydantic.BaseModel):
 
     Attributes
     ----------
-    filename: str
+    filename
         File name of the input data.
-    resolution: int
+    resolution
         Current resolution of said dataset.
-    axis_order: AxisValues
+    axis_order
         Axis order of the data held by the dataset.
-    cell_size: AxisValues
+    cell_size
         Dimensions of a single cell in the dataset.
-    origin: AxisValues
+    origin
         Origin of the coordinate system of the dataset.
-    id: str
+    id
         Name of the dataset.
-    kind: DataKind
+    kind
         Kind of the data held by the dataset.
-    lattice_shape: AxisValues
+    lattice_shape
         Dimensions of the data lattice.
     """
 
@@ -43,7 +43,7 @@ class TimeFrameInfo(pydantic.BaseModel):
 
     Attributes
     ----------
-    id: int
+    id
         Unique identifier of the time frame in its parent dataset.
     """
 
@@ -56,13 +56,13 @@ class DescriptiveStatistics:
 
     Attributes
     ----------
-    mean: float
+    mean
         Mean of the whole channel (one layer of data).
-    std: float
+    std
         Standard deviation of the whole channel.
-    min: float
+    min
         Minimum value in the channel.
-    max: float
+    max
         Maximum value in the channel.
     """
 
@@ -77,9 +77,9 @@ class ChannelInfo(pydantic.BaseModel):
 
     Attributes
     ----------
-    id: int
+    id
         Unique identifier in its parent time frame.
-    statistics: DescriptiveStatistics
+    statistics
         Statistics related to this channel.
     """
 
@@ -92,7 +92,7 @@ class MeshInfo(pydantic.BaseModel):
 
     Attributes
     ----------
-    id: int
+    id
         Unique identifier in its parent time frame.
     """
 

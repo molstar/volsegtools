@@ -14,7 +14,7 @@ class ConvolutionKernel(Protocol):
 
         Returns
         -------
-        np.ndarray:
+        np.ndarray
             Representation of the kernel as numpy array.
         """
         ...
@@ -30,7 +30,7 @@ class ConvolutionKernel(Protocol):
 
         Returns
         -------
-        int:
+        int
             Size of the kernel in one dimension.
         """
         ...

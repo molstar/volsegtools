@@ -55,7 +55,7 @@ class ErrorFunction(Protocol):
 
         Returns
         -------
-        str:
+        str
             Name of the error function.
         """
         ...

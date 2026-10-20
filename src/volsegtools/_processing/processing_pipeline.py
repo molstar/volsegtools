@@ -32,7 +32,7 @@ vst_logger = logging.getLogger("volsegtools")
 T = TypeVar("T")
 
 
-def _flatten(list_of_lists: list[list[T]]) -> list[T]:
+def _flatten[T](list_of_lists: list[list[T]]) -> list[T]:
     # Source - https://stackoverflow.com/a/952952
     return [x for xs in list_of_lists for x in xs]
 
@@ -42,13 +42,13 @@ class ProcessingPipeline(volsegtools.abc.ProcessingPipeline):
 
     Attributes
     ----------
-    DEFAULT_WORK_DIR: Path
+    DEFAULT_WORK_DIR
 
-    DEFAULT_SIZE_THRESHOLD: Bytes
+    DEFAULT_SIZE_THRESHOLD
 
-    working_store: WorkingStore
+    working_store
 
-    state: PipelineStateManager
+    state
 
     """
 
@@ -130,7 +130,7 @@ class ProcessingPipeline(volsegtools.abc.ProcessingPipeline):
 
         Returns
         -------
-        bool:
+        bool
             Whether original resolutions should be kept.
         """
         return self._keep_original
@@ -146,7 +146,7 @@ class ProcessingPipeline(volsegtools.abc.ProcessingPipeline):
 
         Parameters
         ----------
-        kind: PipelineStageKind | str
+        kind
             Kind of the stage. It can be string to support stages that are not
             standardized by the enumeration.
         """
@@ -167,7 +167,7 @@ class ProcessingPipeline(volsegtools.abc.ProcessingPipeline):
 
         Parameters
         ----------
-        cb: Callable
+        cb
             Callback that should be called on each state change.
         """
         self.state.add_callback(cb)
@@ -178,7 +178,7 @@ class ProcessingPipeline(volsegtools.abc.ProcessingPipeline):
 
         Returns
         -------
-        bool:
+        bool
             Whether the pipeline has started processing.
         """
         return self.state.current != PipelineStageKind.NOT_STARTED
@@ -189,7 +189,7 @@ class ProcessingPipeline(volsegtools.abc.ProcessingPipeline):
 
         Returns
         -------
-        bool:
+        bool
             Whether the pipeline has finished working.
         """
         return self.state.current == PipelineStageKind.FINISHED

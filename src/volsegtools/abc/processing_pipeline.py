@@ -12,12 +12,12 @@ class ProcessingPipeline(Protocol):
 
         Parameters
         ----------
-        paths: list[Path]
+        paths
             List of paths to files containing volumetric data.
 
         Returns
         -------
-        list[DataSet]:
+        list[DataSet]
             List of datasets containing volumetric data.
         """
         ...
@@ -27,12 +27,12 @@ class ProcessingPipeline(Protocol):
 
         Parameters
         ----------
-        paths: list[Path]
+        paths
             List of paths to files containing segmentations.
 
         Returns
         -------
-        list[DataSet]:
+        list[DataSet]
             List of datasets containing segmentation data.
         """
         ...
@@ -45,12 +45,12 @@ class ProcessingPipeline(Protocol):
 
         Parameters
         ----------
-        paths: list[Path]
+        paths
             List of paths to files containing metadata.
 
         Returns
         -------
-        list[Any]:
+        list[Any]
             List of any data that should be passed to post-conversion step.
         """
         ...
@@ -63,12 +63,12 @@ class ProcessingPipeline(Protocol):
 
         Parameters
         ----------
-        paths: list[Path]
+        paths
             List of paths to files containing annotations.
 
         Returns
         -------
-        list[Any]:
+        list[Any]
             List of any data that should be passed to post-conversion step.
 
         """
@@ -91,13 +91,13 @@ class ProcessingPipeline(Protocol):
 
         Parameters
         ----------
-        volumes: list[DataSet]
+        volumes
             List of datasets containing volumetric data.
-        segmentations: list[DataSet]
+        segmentations
             List of datasets containing segmentations.
-        metadata: list[Any]
+        metadata
             List of arbitrary data containing metadata.
-        annotations: list[Any]
+        annotations
             List of arbitrary data containing annotations.
         """
         ...
@@ -109,7 +109,7 @@ class ProcessingPipeline(Protocol):
 
         Parameters
         ----------
-        data_set: DataSet
+        data_set
             Dataset in the original resolution.
 
         Returns
@@ -131,12 +131,12 @@ class ProcessingPipeline(Protocol):
 
         Parameters
         ----------
-        data_set: list[DataSet]
+        data_set
             List of original datasets.
 
         Returns
         -------
-        list[Any]:
+        list[Any]
             List of processed datasets.
         """
         ...
@@ -151,12 +151,12 @@ class ProcessingPipeline(Protocol):
 
         Parameters
         ----------
-        data_set: DataSet
+        data_set
             Dataset that should be serialized.
 
         Returns
         -------
-        list[Path]:
+        list[Path]
             List of paths to the serialized files.
         """
         ...
@@ -166,12 +166,12 @@ class ProcessingPipeline(Protocol):
 
         Parameters
         ----------
-        files: list[Path]
+        files
             List of paths to serialized files.
 
         Returns
         -------
-        list[Path]:
+        list[Path]
             List of bundled files.
 
         """
@@ -188,18 +188,18 @@ class ProcessingPipeline(Protocol):
 
         Parameters
         ----------
-        volumes: list[Path]
+        volumes
             List of paths to files containing volumetric data.
-        segmentations: list[Path]
+        segmentations
             List of paths to files containing segmentations.
-        metadata: list[Path]
+        metadata
             List of paths to files containing metadata.
-        annotations: list[Path]
+        annotations
             List of paths to files containing annotations.
 
         Returns
         -------
-        list[Path]:
+        list[Path]
             List of resulting files, both serialized and bundled into some
             archive.
         """

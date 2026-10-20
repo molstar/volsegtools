@@ -27,12 +27,12 @@ class AxisValues:
 
         Parameters
         ----------
-        dtype: DTypeLike, optional
+        dtype: optional
             The datatype to which values of axes should be casted.
 
         Returns
         -------
-        AxesTuple:
+        AxesTuple
             The tuple containing values of this axes value instance casted to
             dtype.
         """
@@ -50,14 +50,14 @@ def create_reorder_permutation(
 
     Parameters
     ----------
-    current_order: AxesOrderTuple
+    current_order
         The current axes order of the lattice.
-    required_order: AxesOrderTuple, optional
+    required_order
         Desired axes order of the lattice.
 
     Returns
     -------
-    AxesOrderTuple:
+    AxesOrderTuple
         The permutation of the axes order that should be used for transposition
         of the lattice in the current order to the desired one.
     """

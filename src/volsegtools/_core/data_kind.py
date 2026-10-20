@@ -32,7 +32,7 @@ class DataKind(enum.IntEnum):
 
         Returns
         -------
-        bool:
+        bool
             Whether current instance is volumetric.
         """
         return self.value < DataKind.SEGMENTATION_VOLUME
@@ -42,7 +42,7 @@ class DataKind(enum.IntEnum):
 
         Returns
         -------
-        bool:
+        bool
             Whether current instance is a segmentation.
         """
         return self.value >= DataKind.SEGMENTATION_VOLUME

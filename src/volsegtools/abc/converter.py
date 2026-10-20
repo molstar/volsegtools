@@ -4,6 +4,8 @@ from typing import Protocol
 from volsegtools._model import PipelineContext
 from volsegtools._storage.data_set import DataSet
 
+# TODO: fix documentation
+
 
 class Converter(Protocol):
     """Converts the contents of some file format into the internal data
@@ -20,7 +22,7 @@ class Converter(Protocol):
 
         Returns
         -------
-        list[str]:
+        list[str]
             List of supported file suffixes.
         """
         ...
@@ -35,7 +37,7 @@ class Converter(Protocol):
 
         Returns
         -------
-        list[str]:
+        list[str]
             List of supported file suffixes.
         """
         ...
@@ -43,15 +45,15 @@ class Converter(Protocol):
     def is_suffix_supported(self, suffix: str) -> bool:
         """Checks whether given file suffix is supported by this converter.
 
-        Attributes
+        Parameters
         ----------
-        suffix: str
+        suffix
             Suffix of a file that we want to know if it is supported by this
             converter.
 
         Returns
         -------
-        bool:
+        bool
             Whether the provided suffix is supported or not.
         """
         return suffix in self.supported_suffixes
@@ -65,12 +67,12 @@ class Converter(Protocol):
 
         Parameters
         ----------
-        input_path: Path
+        input_path
             Path to the transformation target.
 
         Returns
         -------
-        list[DataSet]:
+        list[DataSet]
             List of datasets in internal format.
         """
         ...
@@ -84,12 +86,12 @@ class Converter(Protocol):
 
         Parameters
         ----------
-        input_path: Path
+        input_path
             Path to the transformation target.
 
         Returns
         -------
-        list[DataSet]:
+        list[DataSet]
             List of datasets in internal format.
         """
         ...
@@ -103,15 +105,15 @@ class Converter(Protocol):
 
         Parameters
         ----------
-        input_path: Path
+        input_path
             Path to the transformation target.
-        internal_data: Data
+        internal_data
             Reference to the internal representation of the output. It is
             going to be changed by this method.
 
         Returns
         -------
-        list[DataSet]:
+        list[DataSet]
             List of datasets in internal format.
         """
         ...
@@ -125,15 +127,15 @@ class Converter(Protocol):
 
         Parameters
         ----------
-        input_path: Path
+        input_path
             Path to the transformation target.
-        internal_data: Data
+        internal_data
             Reference to the internal representation of the output. It is
             going to be changed by this method.
 
         Returns
         -------
-        list[DataSet]:
+        list[DataSet]
             List of datasets in internal format.
         """
         ...

@@ -19,7 +19,7 @@ class TimerReporter(Protocol):
 
         Parameters
         ----------
-        timer_data: dict
+        timer_data
             The measurement data from the timer that should be reported.
         """
         ...
@@ -30,15 +30,15 @@ class Timer:
 
     Attributes
     ----------
-    RESOLUTION: int
+    RESOLUTION
         How many decimal numbers are considered.
-    start: float
+    start
         Unix time denoting the start of measurement collection.
-    points: list[Timer.Stage | Timer.Event]
+    points
         List of all measurements.
-    current_event: Timer.Event | None
+    current_event
         Current event measurement, if there is any.
-    current_stage: Timer.Stage | None
+    current_stage
         Current stage measurement, if there is any.
     """
 
@@ -49,13 +49,13 @@ class Timer:
 
         Attributes
         ----------
-        events: list[Timer.Event]
+        events
             List of events that have happened during this stage.
-        start: float
+        start
             Unix time denoting the start of this stage.
-        end: float
+        end
             Unix time denoting the end of this stage.
-        name: str
+        name
             Name of this stage.
         """
 
@@ -70,7 +70,7 @@ class Timer:
 
             Parameters
             ----------
-            name: str
+            name
                 Name of the event.
             """
             if len(self.events) != 0:
@@ -98,7 +98,7 @@ class Timer:
 
             Raises
             ------
-            RuntimeError:
+            RuntimeError
                 if the stage is not finished.
 
             Returns
@@ -115,13 +115,13 @@ class Timer:
 
             Parameters
             ----------
-            use_ms: bool
+            use_ms
                 Flag that denotes whether the result should be saved in Unix
                 time or in miliseconds.
 
             Returns
             -------
-            dict:
+            dict
                 Serialized stage.
             """
             self.pop_event()
@@ -149,14 +149,14 @@ class Timer:
 
         Attributes
         ----------
-        parent: Timer.Stage | None
+        parent
             Reference to the parent stage of this event. If there is none,
             then the event has happened outside of any stage.
-        name: str
+        name
             Name of the event.
-        start: float
+        start
             Unix time denoting the start of the stage.
-        end: float
+        end
             Unix time denoting the end of this event.
         """
 
@@ -171,13 +171,13 @@ class Timer:
 
             Parameters
             ----------
-            use_ms: bool
+            use_ms
                 Flag that denotes whether the result should be saved in Unix
                 time or in miliseconds.
 
             Returns
             -------
-            dict:
+            dict
                 Serialized event.
             """
             return {
@@ -221,7 +221,7 @@ class Timer:
 
         Parameters
         ----------
-        name: str
+        name
             Name of the stage.
         """
         if self.current_stage is not None:
@@ -256,7 +256,7 @@ class Timer:
 
         Parameters
         ----------
-        name: str
+        name
             Name of the event.
         """
         if self.current_stage is not None:
@@ -271,12 +271,12 @@ class Timer:
 
         Raises
         ------
-        RuntimeError:
+        RuntimeError
             if any of the measurement points is not ended.
 
         Returns
         -------
-        float:
+        float
             The total time of the whole measurement.
         """
 
@@ -304,7 +304,7 @@ class Timer:
 
         Parameters
         ----------
-        reporter: TimerReporter
+        reporter
             Instance of timer reporter to which is delegated the reporting.
         """
         reporter.report(self.serialize(True))
@@ -316,19 +316,26 @@ class StandardReporter(TimerReporter):
     STAGE_FMT = "({:6.3f}%) Stage: '{}' ({:0.3f}s / {:0.3f}s / {:0.3f}s)"
     EVENT_FMT = "({:6.3f}% / {:6.3f}%) Event: '{}' ({:0.3f}s / {:0.3f}s / {:0.3f}s)"
 
+    #TODO: finish docstring
+
     def _to_percent(self, part: float, total: float) -> float:
         """Calculates the percentage.
 
         Parameters
         ----------
-        part: float
+        part
             ...
-        total: float
+        total
             ...
+
+        Raises
+        ------
+        RuntimeError:
+            if part is bigger than total.
 
         Returns
         -------
-        float:
+        float
             The percentage in the interval <0, 1.0>.
         """
         step = total / 100.0

@@ -44,11 +44,11 @@ class ProcessingPipelineBuilder:
 
         Parameters
         ----------
-        converter: Converter
+        converter
             The converter for which we want to med the suffixes.
-        suffixes: list[str]
+        suffixes
             The list of additional suffixes.
-        preserve_builtin: bool, optional
+        preserve_builtin
             Whether we want to use the converter's default suffixes.
         """
         if suffixes is None:
@@ -68,20 +68,20 @@ class ProcessingPipelineBuilder:
 
         There has to be atleast one volume or segmentation converter for a
         pipeline to be valid (for segmentation see
-        :meth:`~volsegtools.ProcessingPipelineBuilder.add_volume_converter).
+        :meth:`~volsegtools.ProcessingPipelineBuilder.add_volume_converter`).
 
         Parameters
         ----------
-        converter: Converter
+        converter
             The converter which we want to add.
-        suffixes: list[str]
+        suffixes
             The list of suffixes for which we should use this converter.
-        preserve_builtin: bool, optional
+        preserve_builtin
             Whether we want to use the converter's default suffixes.
 
         Returns
         -------
-        Self:
+        Self
             Reference to this builder.
         """
         suffixes = self._mend_suffixes(converter, suffixes, preserve_builtin)
@@ -98,16 +98,12 @@ class ProcessingPipelineBuilder:
 
         There has to be atleast one volume or segmentation converter for a
         pipeline to be valid (for segmentation see
-        :meth:`~volsegtools.ProcessingPipelineBuilder.add_segmentation_converter).
+        :meth:`~volsegtools.ProcessingPipelineBuilder.add_segmentation_converter`).
 
         Parameters
         ----------
-        converter: Converter
+        converter
             The converter which we want to add.
-        suffixes: list[str]
-            The list of suffixes for which we should use this converter.
-        preserve_builtin: bool, optional
-            Whether we want to use the converter's default suffixes.
 
         Returns
         -------
@@ -129,12 +125,12 @@ class ProcessingPipelineBuilder:
 
         Parameters
         ----------
-        strategy: DownsamplingStrategy
+        strategy
             Strategy which should be used by this pipeline.
 
         Returns
         -------
-        Self:
+        Self
             Reference to this builder.
         """
         self._downsampling_strategy = strategy
@@ -151,12 +147,12 @@ class ProcessingPipelineBuilder:
 
         Parameters
         ----------
-        step: PostConversionStep
+        step
             The post-conversion step that we want to add to the pipeline.
 
         Returns
         -------
-        Self:
+        Self
             Reference to this builder.
         """
         self._post_conversion_steps.append(step)
@@ -173,12 +169,12 @@ class ProcessingPipelineBuilder:
 
         Parameters
         ----------
-        step: PostProcessingStep
+        step
             The post-processing step that we want to add to the pipeline.
 
         Returns
         -------
-        Self:
+        Self
             Reference to this builder.
         """
         self._post_processing_steps.append(step)
@@ -191,12 +187,12 @@ class ProcessingPipelineBuilder:
 
         Parameters
         ----------
-        bundler: Bundler
+        bundler
             The builder that should be used by the pipeline.
 
         Returns
         -------
-        Self:
+        Self
             Reference to this builder.
         """
         self._bundler = bundler
@@ -214,14 +210,14 @@ class ProcessingPipelineBuilder:
 
         Parameters
         ----------
-        kind: DataKind
+        kind
             The kind of the data for which we are setting the serializer.
-        serializer: serializer
+        serializer
             The serializer that the pipeline should used for give data kind.
 
         Returns
         -------
-        Self:
+        Self
             Reference to this builder.
         """
         self._serializer_map[kind] = serializer
@@ -235,17 +231,17 @@ class ProcessingPipelineBuilder:
 
         Parameters
         ----------
-        file_path: Path
+        file_path
             Path to the working directory.
 
         Raises
         ------
-        RuntimeError:
+        RuntimeError
             If the provide file path is not a directory.
 
         Returns
         -------
-        Self:
+        Self
             Reference to this builder.
         """
         if not file_path.is_dir:
@@ -259,12 +255,12 @@ class ProcessingPipelineBuilder:
 
         Parameters
         ----------
-        value: bool
+        value
             Flag denoting whether we should keep the original original.
 
         Returns
         -------
-        Self:
+        Self
             Reference to this builder.
         """
         self._keep_original = value
@@ -278,17 +274,17 @@ class ProcessingPipelineBuilder:
 
         Parameters
         ----------
-        file_path: Path
+        file_path
             Path to the output directory.
 
         Raises
         ------
-        RuntimeError:
+        RuntimeError
             If the provide file path is not a directory.
 
         Returns
         -------
-        Self:
+        Self
             Reference to this builder.
         """
         if not file_path.is_dir:
@@ -302,17 +298,17 @@ class ProcessingPipelineBuilder:
 
         Parameters
         ----------
-        threshold: Bytes
+        threshold
             Positive threshold for the resolution size.
 
         Raises
         ------
-        RuntimeError:
+        RuntimeError
             If the threshold is smaller than 0.
 
         Returns
         -------
-        Self:
+        Self
             Reference to this builder.
         """
         if threshold <= 0:
@@ -326,13 +322,13 @@ class ProcessingPipelineBuilder:
 
         Raises
         ------
-        RuntimeError:
+        RuntimeError
             If volume nor segmentation converter is set.
             If no serializer is set.
 
         Returns
         -------
-        ProcessingPipepline:
+        ProcessingPipeline
             Instance of the processing pipeline.
         """
 
@@ -376,7 +372,7 @@ def create_builder() -> ProcessingPipelineBuilder:
 
     Returns
     -------
-    Self:
+    Self
         Reference to this builder.
     """
     return ProcessingPipelineBuilder()

@@ -15,19 +15,19 @@ class StoringParameters(pydantic.BaseModel):
 
     Attributes
     ----------
-    is_compression_enabled: bool, default: False
+    is_compression_enabled
         Whether the compression is enabled.
-    chunking_mode: ChunkingMode, default: ChunkingMode.AUTO
+    chunking_mode
         Which chunking mode is used for this particular entry.
-    storage_dtype: numpy.typing.DTypeLike, default: np.float64
+    storage_dtype
         What is the type of data stored in this entry.
-    resolution_level: pydantic.NonNegativeInt, default: 0
+    resolution_level
         Of which resolution level is this entry.
-    time_frame: pydantic.NonNegativeInt, default: 0
+    time_frame
         Which time frame is this entry.
-    channel: pydantic.NonNegativeInt, default: 0
+    channel
         Which channel is this entry.
-    compressor: Codec, default: Blosc()
+    compressor
         Which compression codec is going to be used.
     """
 

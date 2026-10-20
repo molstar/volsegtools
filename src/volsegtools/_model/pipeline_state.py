@@ -58,9 +58,9 @@ class PipelineStateManager:
         """
         Parameters
         ----------
-        pipeline: ProcessingPipeline
+        pipeline
             The pipeline with which should this manager be associated.
-        initial_state: PipelineState
+        initial_state
             The initial state of the manager.
         """
         self._pipeline = pipeline
@@ -73,7 +73,7 @@ class PipelineStateManager:
 
         Returns
         -------
-        PipelineState:
+        PipelineState
             Current state of the pipeline.
         """
         return self._state
@@ -83,7 +83,7 @@ class PipelineStateManager:
 
         Parameters
         ----------
-        cb: Callable
+        cb
             New callback.
         """
         self._callbacks.append(cb)
@@ -95,7 +95,7 @@ class PipelineStateManager:
 
         Parameters
         ----------
-        kwargs: Any
+        kwargs
             Key-Value pairs that should be updated in the pipeline's state.
         """
         self._state = dataclasses.replace(self._state, **kwargs)
@@ -111,15 +111,15 @@ class PipelineContext:
 
     Attributes
     ----------
-    timer: Timer
+    timer
         Pipeline's timer.
-    working_store: WorkingStore
+    working_store
         Current working store.
-    output_dir: Path
+    output_dir
         Output directory associated with this pipeline.
-    state: PipelineStateManager
+    state
         Current pipeline state manager.
-    size_threhold: Bytes
+    size_threhold
         Size threshold that is accepted by this pipeline.
     """
 

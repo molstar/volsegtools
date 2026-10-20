@@ -8,7 +8,7 @@ from volsegtools._storage.data_handle import DataHandle
 if TYPE_CHECKING:
     from volsegtools._core.computation_backend import ComputationBackend
 
-    from .volsegtools._storage.time_frame import TimeFrame
+    from .time_frame import TimeFrame
 
 
 class Channel:

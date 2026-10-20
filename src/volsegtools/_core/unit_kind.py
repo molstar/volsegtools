@@ -18,12 +18,12 @@ def unit_from_str(string: str) -> UnitKind:
 
     Parameters
     ----------
-    string: str
+    string
         String representation of the unit name.
 
     Returns
     -------
-    UnitKind:
+    UnitKind
         Enum representation of the string.
     """
     match string:
@@ -40,12 +40,12 @@ def to_angstrom(micrometers: float) -> float:
 
     Parameters
     ----------
-    micrometers: float
+    micrometers
         Number of micrometers.
 
     Returns
     -------
-    float:
+    float
         The same amount in angstroms.
     """
     return micrometers * 10_000
@@ -56,12 +56,12 @@ def to_micrometer(angstroms: float) -> float:
 
     Parameters
     ----------
-    angstroms: float
+    angstroms
         Number of angstroms.
 
     Returns
     -------
-    float:
+    float
         The same amount in micrometers.
     """
     return angstroms / 10_000

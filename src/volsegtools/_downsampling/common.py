@@ -8,17 +8,17 @@ def calculate_approx_downsampled_sizes(
 
     Parameters
     ----------
-    channel: Channel
+    channel
         The source of the original resolution.
-    size_threshold: int
+    size_threshold
         The minimal size for a resolution to be accepted.
-    factor: int
+    factor
         A single dimension of the downsampling kernel. So factor equal to 2
         would result into 1/8th of the size of the previous resolution.
 
     Returns
     -------
-    list[float]:
+    list[float]
         List of approximate downsampled sizes of different resolutions.
     """
     if factor <= 1:
@@ -44,7 +44,7 @@ def calculate_steps(channel: Channel, size_threshold: int, factor: int = 2) -> i
 
     Returns
     -------
-    int:
+    int
         Number of downsampling steps.
     """
     return len(calculate_approx_downsampled_sizes(channel, size_threshold, factor))
