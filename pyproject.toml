@@ -159,6 +159,10 @@ docstring-code-line-length = "dynamic"
 # Pytest Configuration
 # -----------------------------------------------------------------------------
 
+[tool.pytest.ini_options]
+testpaths = ["tests"]
+pythonpath = ["."]
+
 [tool.coverage.run]
 branch = true
 source_pkgs = [ "volsegtools" ]
