@@ -1,0 +1,146 @@
+# Configuration file for the Sphinx documentation builder.
+from __future__ import annotations
+
+from pathlib import Path
+
+import sys
+
+sys.path.insert(0, str(Path("..", "src").resolve()))
+
+# -- Project information
+
+project = "Volsegtools"
+copyright = "2026, Mol*"
+author = "Mol*"
+
+release = "0.1"
+version = "0.1.0"
+
+# -- General configuration
+
+extensions = [
+    "myst_parser",
+    "sphinx.ext.duration",
+    "sphinx.ext.doctest",
+    "sphinx.ext.autodoc",
+    "sphinx.ext.autosummary",
+    "sphinx.ext.intersphinx",
+    "sphinx.ext.napoleon",
+    "sphinx.ext.viewcode",
+    "sphinx.ext.coverage",
+    "sphinx_design",
+    "sphinx_autodoc_typehints",
+]
+
+autodoc_typehints = "both"
+typehints_fully_qualified = False
+typehints_documentation_rtype = True
+typehints_use_rtype = False
+always_document_param_types = True
+autodoc_preserve_defaults = True
+napoleon_use_admonition_for_notes = False
+napoleon_use_rtype = False
+
+autodoc_default_options = {
+    "members": True,
+    "undoc-members": True,
+    "show-inheritance": True,
+    "member-order": "bysource",
+    "exclude-members": "__weakref__, __dict__, __abstractmethods__, __protocol_attrs__",
+}
+
+# Some of the private types have to mapped to their public API variant,
+# otherwise it is causing problems with references.
+autodoc_type_aliases = {
+    "DataSet": "volsegtools.DataSet",
+    "volsegtools._storage.data_set.DataSet": "volsegtools.DataSet",
+    "Channel": "volsegtools.Channel",
+    "volsegtools._storage.channel.Channel": "volsegtools.Channel",
+    "PipelineContext": "volsegtools.PipelineContext",
+    "volsegtools._model.pipeline_state.PipelineContext": "volsegtools.PipelineContext",
+    "TData": "volsegtools.abc.TData",
+    "volsegtools.abc.downsampling_strategy.TData": "volsegtools.abc.TData",
+    "trimesh.base.Trimesh": "trimesh.Trimesh",
+}
+
+napoleon_preprocess_types = True
+napoleon_type_aliases = {
+    "Path": "pathlib.Path",
+    "DataSet": "volsegtools.DataSet",
+    "PipelineContext": "volsegtools.PipelineContext",
+}
+nitpick_ignore = [("py:class", "trimesh.Trimesh"), ("py:class", "trimesh.base.Trimesh")]
+nitpick_ignore_regex = [("py:class", r".*\bTData")]
+
+# Tell autodoc to treat Protocol members as real members
+autodoc_mock_imports = []
+autodoc_inherit_docstrings = True
+
+nitpick_ignore_regex = [
+    ("py:obj", r"volsegtools\.abc\..*"),
+]
+
+
+intersphinx_mapping = {
+    "python": ("https://docs.python.org/3/", None),
+    "sphinx": ("https://www.sphinx-doc.org/en/master/", None),
+}
+intersphinx_disabled_domains = ["std"]
+
+templates_path = ["_templates"]
+
+html_static_path = ["_static"]
+html_css_files = ["custom.css"]
+
+highlight_language = "python"
+pygments_style = "sphinx"
+
+coverage_modules = ["volsegtools"]
+coverage_show_missing_items = True
+
+# -- Options for HTML output
+
+# html_theme = "sphinx_rtd_theme"
+html_theme = "pydata_sphinx_theme"
+html_logo = "_static/favicon.svg"
+html_favicon = "_static/favicon.svg"
+html_theme_options = {
+    "navbar_align": "left",
+    "logo": {
+        "text": "VolsegTools",
+        "image_light": "_static/favicon.svg",
+        "image_dark": "_static/favicon.svg",
+    },
+    "icon_links": [
+        {
+            "name": "GitHub",
+            "url": "https://github.com/molstar/volsegtools",
+            "icon": "fa-brands fa-github",
+            "type": "fontawesome",
+        },
+        {
+            "name": "Mol*",
+            "url": "https://molstar.org/",
+            "icon": "_static/molstar_favicon.svg",
+            "type": "local",
+        },
+        {
+            "name": "PyPI Package",
+            "url": "https://docs.conda.io/projects/conda/en/stable/index.html",
+            "icon": "_static/pypi_icon.svg",
+            "type": "local",
+        },
+        {
+            "name": "Conda Package",
+            "url": "https://molstar.org/",
+            "icon": "_static/conda_icon.svg",
+            "type": "local",
+        },
+    ],
+}
+
+autosummary_generate = True
+autosummary_ignore_module_all = False
+
+# -- Options for EPUB output
+epub_show_urls = "footnote"
