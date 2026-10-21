@@ -1,3 +1,5 @@
+from pathlib import Path
+
 import json
 
 import volsegtools as vst
@@ -40,7 +42,7 @@ def test_json_reporter(tmp_path):
         )
     )
 
-    with open(output_file) as file:
+    with Path.open(output_file) as file:
         data = json.load(file)
 
     assert data[0]["kind"] == "stage"
