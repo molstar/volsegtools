@@ -56,6 +56,11 @@ class TIFFConverter(Converter):
         axes = filter(lambda x: x in ["X", "Y", "Z"], metadata["DimOrder BF Array"])
         axis_order = tuple("XYZ".index(ax) for ax in axes)
 
+        if ".ome" in input_path.suffixes:
+            dataset_id = Path(".".join(str(input_path).split(".")[:-2])).stem
+        else:
+            dataset_id = input_path.stem
+
         data_set_info = DataSetInfo(
             filename=str(input_path),
             resolution=0,
