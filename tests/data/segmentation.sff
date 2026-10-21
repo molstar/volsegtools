@@ -1,0 +1,65 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<segmentation>
+    <version>0.8.0.dev1</version>
+    <name>pytest labels</name>
+    <transform_list>
+        <transformation_matrix id="0">
+            <rows>3</rows>
+            <cols>4</cols>
+            <data>1.0 0.0 0.0 1.0 0.0 1.0 0.0 2.0 0.0 0.0 1.0 3.0</data>
+        </transformation_matrix>
+    </transform_list>
+    <primary_descriptor>three_d_volume</primary_descriptor>
+    <segment_list>
+        <segment id="1">
+            <colour>
+                <red>1.</red>
+                <green>0.</green>
+                <blue>0.</blue>
+            </colour>
+            <three_d_volume>
+                <lattice_id>0</lattice_id>
+                <value>1.</value>
+            </three_d_volume>
+        </segment>
+        <segment id="2">
+            <colour>
+                <red>0.</red>
+                <green>1.</green>
+                <blue>0.</blue>
+            </colour>
+            <three_d_volume>
+                <lattice_id>0</lattice_id>
+                <value>2.</value>
+            </three_d_volume>
+        </segment>
+        <segment id="3">
+            <colour>
+                <red>0.</red>
+                <green>0.</green>
+                <blue>1.</blue>
+            </colour>
+            <three_d_volume>
+                <lattice_id>0</lattice_id>
+                <value>3.</value>
+            </three_d_volume>
+        </segment>
+    </segment_list>
+    <lattice_list>
+        <lattice id="0">
+            <mode>uint8</mode>
+            <endianness>little</endianness>
+            <size>
+                <cols>21</cols>
+                <rows>19</rows>
+                <sections>17</sections>
+            </size>
+            <start>
+                <cols>0</cols>
+                <rows>0</rows>
+                <sections>0</sections>
+            </start>
+            <data>eJztlTEOgDAMAzH5/59BSCAgGTK0wSK+8YZW9Q01O1geWJUUL8qWV44MykGFclBBkgNAoOD0DBne3obk8oC3QGDzMjyzd6Oi5Wc1+hvKQYVykBE8sqiR/o4syUZD5Hpy117ufCubQLi8clAtrxxUyysH1fLKQbW8clAtf8kNuUAISg==</data>
+        </lattice>
+    </lattice_list>
+</segmentation>
