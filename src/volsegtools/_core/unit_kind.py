@@ -1,4 +1,8 @@
+from typing import Annotated
+
 import enum
+
+import pydantic
 
 # It would be better to use StrEnum for this case, but we would need
 # a multi-value enumeration for that. But that is better supported in 3.13+
@@ -11,6 +15,16 @@ class UnitKind(enum.IntEnum):
     UNKNOWN = 0
     MICRO_METER = 1
     ANGSTROM = 2
+    NANO_METER = 3
+
+
+Unit = Annotated[
+    UnitKind,
+    pydantic.PlainSerializer(
+        lambda v: v.name.lower(),
+        return_type=str,
+    ),
+]
 
 
 def unit_from_str(string: str) -> UnitKind:
@@ -29,6 +43,8 @@ def unit_from_str(string: str) -> UnitKind:
     match string:
         case "um" | "μm" | "micro":
             return UnitKind.MICRO_METER
+        case "nm":
+            return UnitKind.NANO_METER
         case "angstrom" | "Å":
             return UnitKind.ANGSTROM
         case _:

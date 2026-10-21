@@ -9,11 +9,11 @@ from .axis_values import AxisValues, create_reorder_permutation
 from .bytes import Bytes
 from .chunking_mode import ChunkingMode
 from .computation_backend import ComputationBackend
-from .data_kind import DataKind
+from .data_kind import DataKind, SerializableDataKind
 from .gaussian_kernel import Gaussian3DKernel
 from .kernel import ConvolutionKernel
 from .timer import JSONTimerReporter, StandardReporter, Timer, TimerReporter
-from .unit_kind import UnitKind, to_angstrom, to_micrometer, unit_from_str
+from .unit_kind import Unit, UnitKind, to_angstrom, to_micrometer, unit_from_str
 from .working_store import WorkingStore
 
 __all__ = [
@@ -25,9 +25,11 @@ __all__ = [
     "DataKind",
     "Gaussian3DKernel",
     "JSONTimerReporter",
+    "SerializableDataKind",
     "StandardReporter",
     "Timer",
     "TimerReporter",
+    "Unit",
     "UnitKind",
     "WorkingStore",
     "create_reorder_permutation",

@@ -1,3 +1,4 @@
+import pydantic
 import pytest
 
 import volsegtools as vst
@@ -50,3 +51,17 @@ def test_to_micrometers_and_back(angstroms):
 )
 def test_unit_from_str(string, kind):
     assert vst.unit_from_str(string) == kind
+
+
+@pytest.mark.parametrize(
+    "kind, serialized",
+    [
+        (vst.UnitKind.UNKNOWN, "unknown"),
+        (vst.UnitKind.MICRO_METER, "micro_meter"),
+        (vst.UnitKind.ANGSTROM, "angstrom"),
+        (vst.UnitKind.NANO_METER, "nano_meter"),
+    ],
+)
+def test_serialization(kind, serialized):
+    adapter = pydantic.TypeAdapter(vst.Unit)
+    assert adapter.dump_python(kind, mode="python") == serialized

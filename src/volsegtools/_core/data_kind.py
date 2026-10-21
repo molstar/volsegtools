@@ -1,4 +1,8 @@
+from typing import Annotated
+
 import enum
+
+import pydantic
 
 
 class DataKind(enum.IntEnum):
@@ -46,3 +50,12 @@ class DataKind(enum.IntEnum):
             Whether current instance is a segmentation.
         """
         return self.value >= DataKind.SEGMENTATION_VOLUME
+
+
+SerializableDataKind = Annotated[
+    DataKind,
+    pydantic.PlainSerializer(
+        lambda v: v.name.lower(),
+        return_type=str,
+    ),
+]
