@@ -1,4 +1,5 @@
 from pathlib import Path
+from typing import ClassVar
 
 import logging
 
@@ -13,7 +14,7 @@ class UnsupportedCompressionError(Exception):
 
 
 class ConverterMap:
-    COMPRESSION_FILE_EXT = [
+    COMPRESSION_FILE_EXT: ClassVar[list] = [
         "br",
         "bz2",
         "gz",
