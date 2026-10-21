@@ -69,6 +69,18 @@ dev = [
     "ruff>=0.16.0",
 ]
 
+docs = [
+    "sphinx",
+    "myst-parser",
+    "numpydoc",
+    "pydata-sphinx-theme",
+    "sphinx-copybutton",
+    "sphinx-design",
+    "markdown-it-py",
+    "sphinx-autodoc-typehints",
+    "autodoc-pydantic>=2.2.0",
+]
+
 [project.scripts]
 molstar-preprocessor = 'volsegtools._cli:app'
 
