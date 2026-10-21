@@ -1,3 +1,5 @@
+from typing import Annotated
+
 from numpy.typing import DTypeLike
 
 import numpy as np
@@ -38,6 +40,20 @@ class AxisValues:
         """
         dtype = np.dtype(dtype)
         return (dtype.type(self.x), dtype.type(self.y), dtype.type(self.z))
+
+
+def _axis_values_as_int(values: AxisValues) -> dict[str, int]:
+    return {
+        "x": int(values.x),
+        "y": int(values.y),
+        "z": int(values.z),
+    }
+
+
+AxisValuesAsInt = Annotated[
+    AxisValues,
+    pydantic.PlainSerializer(_axis_values_as_int, return_type=dict[str, int]),
+]
 
 
 def create_reorder_permutation(
