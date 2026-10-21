@@ -1,5 +1,3 @@
-from typing import Any
-
 import dask.array as da
 import zarr
 
@@ -8,7 +6,7 @@ from volsegtools.abc import ComputationBackend
 from volsegtools.typing import ZarrObject
 
 
-class DaskBackend(ComputationBackend):
+class DaskBackend(ComputationBackend[da.Array]):
     """Computation backend based on the dask library.
 
     This backend should be used if there is an access to (even multiple)
@@ -29,7 +27,7 @@ class DaskBackend(ComputationBackend):
         return "dask"
 
     @staticmethod
-    def load_from_zarr(zarr_object: ZarrObject) -> Any:
+    def load_from_zarr(zarr_object: ZarrObject) -> da.Array:
         if isinstance(zarr_object, zarr.Group):
             raise RuntimeError("Cannot load dask array from group")
         return da.from_zarr(

@@ -1,9 +1,16 @@
-from typing import Any, Protocol
+from __future__ import annotations
+
+from typing import Protocol, TypeVar, TYPE_CHECKING
 
 from volsegtools.typing import ZarrObject
 
+if TYPE_CHECKING:
+    from volsegtools._model.metadata import DescriptiveStatistics
 
-class ComputationBackend(Protocol):
+TData = TypeVar("TData")
+
+
+class ComputationBackend(Protocol[TData]):
     """Provides access to the computation behind arrays."""
 
     @staticmethod
@@ -17,7 +24,7 @@ class ComputationBackend(Protocol):
         ...
 
     @staticmethod
-    def load_from_zarr(zarr_object: ZarrObject) -> Any:
+    def load_from_zarr(zarr_object: ZarrObject) -> TData:
         """Returns the backend's compatible representation of zarr array.
 
         Parameters
@@ -36,7 +43,7 @@ class ComputationBackend(Protocol):
         ...
 
     @staticmethod
-    def calculate_statistics(array: Any) -> Any:
+    def calculate_statistics(array: TData) -> DescriptiveStatistics:
         """Calculates statistics of the provided data.
 
         Parameters
@@ -55,7 +62,7 @@ class ComputationBackend(Protocol):
         ...
 
     @staticmethod
-    def store_to_zarr(array: Any, target_zarr: ZarrObject) -> None:
+    def store_to_zarr(array: TData, target_zarr: ZarrObject) -> None:
         """Stores given data into target zarr array.
 
         Parameters

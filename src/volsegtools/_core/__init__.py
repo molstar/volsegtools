@@ -8,7 +8,7 @@ import from the `volsegtools` namespace.
 from .axis_values import AxisValues, create_reorder_permutation
 from .bytes import Bytes
 from .chunking_mode import ChunkingMode
-from .computation_backend import ComputationBackend
+from .computation_backend import ComputationBackend, TData
 from .data_kind import DataKind, SerializableDataKind
 from .gaussian_kernel import Gaussian3DKernel
 from .kernel import ConvolutionKernel
@@ -27,6 +27,7 @@ __all__ = [
     "JSONTimerReporter",
     "SerializableDataKind",
     "StandardReporter",
+    "TData",
     "Timer",
     "TimerReporter",
     "Unit",

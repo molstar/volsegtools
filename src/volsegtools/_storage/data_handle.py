@@ -4,7 +4,8 @@ from typing import Self
 import trimesh
 import zarr
 
-from volsegtools._core import ComputationBackend, DataKind, WorkingStore
+from volsegtools._core import ComputationBackend, DataKind, TData, WorkingStore
+from volsegtools._model.metadata import DescriptiveStatistics
 from volsegtools.typing import ZarrObject
 
 
@@ -28,7 +29,7 @@ class DataHandle:
         return self.zarr_object.attrs.update(new_attrs)
 
     @property
-    def zarr_object(self) -> zarr.Array | zarr.Group:
+    def zarr_object(self) -> ZarrObject:
         if self._zarr_object is None:
             self._zarr_object = zarr.open_group(
                 self.store.data_store, path=str(self.zarr_path)
@@ -64,7 +65,8 @@ class DataHandle:
                 f"Cannot proceed. Expected one of {allowed_kinds}, got {self.data_kind}"
             )
 
-    def get_lattice(self, backend: ComputationBackend) -> ZarrObject:
+    # TODO: this should return only an ArrayLike
+    def get_lattice(self, backend: ComputationBackend[TData]) -> TData:
         self.require_kind(
             DataKind.VOLUME, DataKind.SEGMENTATION_MASK, DataKind.SEGMENTATION_VOLUME
         )
@@ -82,7 +84,9 @@ class DataHandle:
 
         return backend.load_from_zarr(self.zarr_object)
 
-    def calculate_statistics(self, backend: ComputationBackend):
+    def calculate_statistics(
+        self, backend: ComputationBackend[TData]
+    ) -> DescriptiveStatistics:
         return backend.calculate_statistics(self.zarr_object["data"])
 
     def close(self) -> None:
