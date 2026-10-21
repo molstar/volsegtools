@@ -34,14 +34,10 @@ class BCIFSerializer(Serializer):
 
             data = channel.handle.get_lattice(DaskBackend)
             data = data.transpose(data_set.metadata.axis_order.to_tuple(dtype=int))
-
-            # This is slight hack, because we have to propagate the lattice shape
-            # value to the VolumeData3DDesc.
-
             data = np.ravel(data.compute(), order="F")
 
-            writer.write_category(VolumeData3DInfoDescNew, [channel])
             writer.start_data_block("EM")
+            writer.write_category(VolumeData3DInfoDesc, [channel])
 
             writer.write_category(VolumeData3DDesc, [data])
 
@@ -53,7 +49,7 @@ class BCIFSerializer(Serializer):
         return output_files
 
 
-class VolumeData3DInfoDescNew(CategoryDesc):
+class VolumeData3DInfoDesc(CategoryDesc):
     name = "volume_data_3d_info"
 
     @staticmethod
