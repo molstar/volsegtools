@@ -1,9 +1,8 @@
 from collections.abc import Callable
 from pathlib import Path
-from typing import TypeVar
+from typing import Any, TypeVar
 
 import asyncio
-import itertools
 import logging
 
 from volsegtools._conversion.converter_map import ConverterMap
@@ -35,6 +34,9 @@ T = TypeVar("T")
 def _flatten[T](list_of_lists: list[list[T]]) -> list[T]:
     # Source - https://stackoverflow.com/a/952952
     return [x for xs in list_of_lists for x in xs]
+
+
+# TODO: finish documentation
 
 
 class ProcessingPipeline(volsegtools.abc.ProcessingPipeline):
@@ -196,71 +198,52 @@ class ProcessingPipeline(volsegtools.abc.ProcessingPipeline):
 
     def sync_process(
         self,
-        volumes: list[Path] | None = None,
-        segmentations: list[Path] | None = None,
-        metadata: list[Path] | None = None,
-        annotations: list[Path] | None = None,
+        volume_files: list[Path] | None = None,
+        segmentation_files: list[Path] | None = None,
+        metadata_files: list[Path] | None = None,
+        annotation_files: list[Path] | None = None,
     ) -> list[Path]:
-        volumes = volumes or []
-        segmentations = segmentations or []
-        metadata = metadata or []
-        annotations = annotations or []
-
-        return asyncio.run(self.process(volumes, segmentations, metadata, annotations))
+        return asyncio.run(
+            self.process(
+                volume_files or [],
+                segmentation_files or [],
+                metadata_files or [],
+                annotation_files or [],
+            ),
+        )
 
     async def process(
         self,
-        volumes: list[Path] | None = None,
-        segmentations: list[Path] | None = None,
-        metadata: list[Path] | None = None,
-        annotations: list[Path] | None = None,
+        volume_files: list[Path] | None = None,
+        segmentation_files: list[Path] | None = None,
+        metadata_files: list[Path] | None = None,
+        annotation_files: list[Path] | None = None,
     ) -> list[Path]:
-        volumes = volumes or []
-        segmentations = segmentations or []
-        metadata = metadata or []
-        annotations = annotations or []
-
-        converted_volumes = await self.convert_volumes(volumes)
-        converted_segmentations = await self.convert_segmentations(segmentations)
-        collected_metadata = await self.collect_metadata(metadata)
-        collected_annotations = await self.collect_annotation(annotations)
-
-        if self._post_conversion_steps != []:
-            await self.apply_post_conversion_steps(
-                converted_volumes,
-                converted_segmentations,
-                collected_metadata,
-                collected_annotations,
-            )
-
-        downsampled_data = await asyncio.gather(
-            *[
-                self.downsample(handle)
-                for handle in itertools.chain(converted_volumes, converted_segmentations)
-            ]
+        volumes, segmentations, metadata, annotations = await asyncio.gather(
+            self.convert_volumes(volume_files or []),
+            self.convert_segmentations(segmentation_files or []),
+            self.collect_metadata(metadata_files or []),
+            self.collect_annotation(annotation_files or []),
         )
 
-        downsampled_data = _flatten(downsampled_data)
+        datasets = await self.apply_post_conversion_steps(
+            volumes,
+            segmentations,
+            metadata,
+            annotations,
+        )
+
+        datasets = await asyncio.gather(*map(self.downsample, datasets))
+
+        datasets = await self.apply_post_processing_steps(datasets)
+
         if not self.keep_original:
-            downsampled_data = list(
-                filter(
-                    lambda x: x.metadata.resolution != 0,
-                    downsampled_data,
-                )
-            )
+            for dataset in datasets:
+                dataset.resolutions = dataset.resolutions[1:]
 
-        if self._post_processing_steps != []:
-            downsampled_data = await self.apply_post_processing_steps(downsampled_data)
-
-        serialized_files = await asyncio.gather(
-            *[self.serialize(handle) for handle in downsampled_data]
-        )
+        serialized_files = await asyncio.gather(*map(self.serialize, datasets))
         serialized_files = _flatten(serialized_files)
-
-        if self._bundler is not None:
-            serialized_files = await self.bundle(serialized_files)
-
-        return serialized_files
+        return await self.bundle(serialized_files)
 
     @pipeline_stage("Volume Conversion")
     async def convert_volumes(self, paths: list[Path]) -> list[DataSet]:
@@ -319,10 +302,23 @@ class ProcessingPipeline(volsegtools.abc.ProcessingPipeline):
 
     @pipeline_stage("Post-Conversion Steps")
     async def apply_post_conversion_steps(
-        self, volumes, segmentations, metadata, annotations
-    ):
+        self,
+        volumes: list[DataSet],
+        segmentations: list[DataSet],
+        metadata: list[Any],
+        annotations: list[Any],
+    ) -> list[DataSet]:
+        datasets = []
         for step in self._post_conversion_steps:
-            await step(volumes, segmentations, metadata, annotations, self.context)
+            datasets += await step(
+                volumes, segmentations, metadata, annotations, self.context
+            )
+
+        # No step was applied.
+        if datasets == []:
+            return volumes + segmentations
+
+        return datasets
 
     @pipeline_stage("Downsampling")
     async def downsample(self, dataset: DataSet) -> DataSet:
@@ -370,22 +366,25 @@ class ProcessingPipeline(volsegtools.abc.ProcessingPipeline):
         return dataset
 
     @pipeline_stage("Post-Processing Steps")
-    async def apply_post_processing_steps(self, data_set: list[DataSet]) -> list[DataSet]:
-        processed_data = data_set
+    async def apply_post_processing_steps(self, datasets: list[DataSet]) -> list[DataSet]:
+        # we are creating this variable so that we are not overriding the input
+        # dataset variable. And we need it because we are applying changes
+        # incrementally in the loop.
+        processed_data = datasets
         for step in self._post_processing_steps:
             processed_data = await step.execute(processed_data, self.context)
         return processed_data
 
     @pipeline_stage("Serialization")
-    async def serialize(self, data_set) -> list[Path]:
-        kind = data_set.metadata.kind
+    async def serialize(self, dataset: DataSet) -> list[Path]:
+        kind = dataset.metadata.kind
 
         serializer = self._serializer_map[kind]
         if serializer is None:
             raise RuntimeError(f"Could not find serializer for '{kind}'")
 
         return await serializer.serialize(
-            data_set,
+            dataset,
             self._output_dir,
             self.context,
         )
@@ -393,5 +392,5 @@ class ProcessingPipeline(volsegtools.abc.ProcessingPipeline):
     @pipeline_stage("Bundling")
     async def bundle(self, files: list[Path]) -> list[Path]:
         if self._bundler is None:
-            raise RuntimeError("Cannot bundle without any bundler!")
+            return files
         return self._bundler.bundle(files, self._output_dir, self.context)

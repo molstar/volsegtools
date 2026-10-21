@@ -411,8 +411,8 @@ def run(
         try:
             pipeline.add_state_change_callback(update_status)
             pipeline.sync_process(
-                volumes=volume_source,
-                segmentations=segmentation_source,
+                volume_files=volume_source,
+                segmentation_files=segmentation_source,
             )
 
             pipeline.context.timer.pop_stage()

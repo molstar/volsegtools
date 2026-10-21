@@ -80,7 +80,7 @@ class ProcessingPipeline(Protocol):
         segmentations: list[DataSet],
         metadata: list[Any],
         annotations: list[Any],
-    ) -> None:
+    ) -> list[DataSet]:
         """Does some processing of the converted data.
 
         Some downsampling algorithms might need some additional processing or
@@ -102,10 +102,11 @@ class ProcessingPipeline(Protocol):
         """
         ...
 
-    async def downsample(self, data_set: DataSet) -> list[DataSet]:
+    async def downsample(self, dataset: DataSet) -> DataSet:
         """Downsamples given data.
 
-        This basically creates the so-called resolution pyramid of the data.
+        This function creates a hierarchical resolution pyramid by adding lower
+        resolutions to the given dataset.
 
         Parameters
         ----------
@@ -121,7 +122,7 @@ class ProcessingPipeline(Protocol):
 
     async def apply_post_processing_steps(
         self,
-        data_set: list[DataSet],
+        datasets: list[DataSet],
     ) -> list[DataSet]:
         """Applies post processing steps on the downsampled data.
 
@@ -143,7 +144,7 @@ class ProcessingPipeline(Protocol):
 
     # TODO: Path is not enough, we need some additional information further in
     # the pipeline. Attach some metadata to the path.
-    async def serialize(self, data_set: DataSet) -> list[Path]:
+    async def serialize(self, dataset: DataSet) -> list[Path]:
         """Serializes given data into files.
 
         There should be a serializer for each data kind that should be used for
@@ -179,10 +180,10 @@ class ProcessingPipeline(Protocol):
 
     async def process(
         self,
-        volumes: list[Path],
-        segmentations: list[Path],
-        metadata: list[Path],
-        annotations: list[Path],
+        volume_files: list[Path],
+        segmentation_files: list[Path],
+        metadata_files: list[Path],
+        annotation_files: list[Path],
     ) -> list[Path]:
         """Processes given data using this processing pipeline.
 
@@ -207,10 +208,10 @@ class ProcessingPipeline(Protocol):
 
     def sync_process(
         self,
-        volumes: list[Path],
-        segmentations: list[Path] | None = None,
-        metadata: list[Path] | None = None,
-        annotations: list[Path] | None = None,
+        volume_files: list[Path],
+        segmentation_files: list[Path] | None = None,
+        metadata_files: list[Path] | None = None,
+        annotation_files: list[Path] | None = None,
     ) -> list[Path]:
         """Processes given data in synchronous manner.
 
