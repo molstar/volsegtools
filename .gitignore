@@ -2,6 +2,7 @@
 data/
 volsegtools_workdir/
 .vst_work_dir/
+out/
 
 # Development specific
 .direnv
