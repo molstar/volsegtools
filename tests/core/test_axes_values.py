@@ -31,9 +31,9 @@ def test_to_tuple_changes_type_to_np_type(builtin_dtype, numpy_dtype):
     values = vst.AxisValues(1, 2, 3.14)
     tupled = values.to_tuple(dtype=builtin_dtype)
 
-    assert type(tupled[0]) == numpy_dtype
-    assert type(tupled[1]) == numpy_dtype
-    assert type(tupled[2]) == numpy_dtype
+    assert isinstance(tupled[0], numpy_dtype)
+    assert isinstance(tupled[1], numpy_dtype)
+    assert isinstance(tupled[2], numpy_dtype)
 
 
 @pytest.mark.parametrize(
@@ -47,9 +47,9 @@ def test_to_tuple_changes_type(dtype):
     values = vst.AxisValues(1, 2, 3.14)
     tupled = values.to_tuple(dtype=dtype)
 
-    assert type(tupled[0]) == dtype
-    assert type(tupled[1]) == dtype
-    assert type(tupled[2]) == dtype
+    assert isinstance(tupled[0], dtype)
+    assert isinstance(tupled[1], dtype)
+    assert isinstance(tupled[2], dtype)
 
 
 @pytest.mark.parametrize(
