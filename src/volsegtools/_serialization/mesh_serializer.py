@@ -5,6 +5,7 @@ import logging
 from volsegtools._model.pipeline_state import PipelineContext
 from volsegtools._processing import MeshBackend
 from volsegtools._storage import DataSet
+from volsegtools._storage.data_set import create_file_name
 from volsegtools.abc import Serializer
 
 vst_logger = logging.getLogger("volsegtools")
@@ -43,24 +44,20 @@ class MeshSerializer(Serializer):
     ) -> list[Path]:
         output_files = []
 
-        for frame in data_set.time_frames:
-            for mesh in frame.meshes:
-                mesh_data = mesh.handle.get_mesh(MeshBackend)
+        for mesh in data_set.flat_mesh_iter():
+            mesh_data = mesh.handle.get_mesh(MeshBackend)
 
-                file_name = (
-                    f"{data_set.metadata.id}"
-                    f"_r{data_set.metadata.resolution}"
-                    f"_tf{frame.metadata.id}"
-                    f"_m{mesh.metadata.id}.mrc"
-                )
+            # We need empty extension, because it is going to be filled in by a
+            # particular serialization function.
+            file_name = create_file_name(mesh, "")
 
-                output = self.serialization_fn(
-                    output_path,
-                    file_name,
-                    mesh_data,
-                )
-                vst_logger.info(f"... serialized into {output}")
-                output_files.append(output)
+            output = self.serialization_fn(
+                output_path,
+                file_name,
+                mesh_data,
+            )
+            vst_logger.info(f"... serialized into {output}")
+            output_files.append(output)
 
         return output_files
 

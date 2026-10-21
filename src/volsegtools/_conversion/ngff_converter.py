@@ -5,6 +5,7 @@ import ngff_zarr as nz
 from volsegtools._core import AxisValues, DataKind
 from volsegtools._core.axis_values import create_reorder_permutation
 from volsegtools._model import DataSetInfo, PipelineContext
+from volsegtools._model.metadata import ResolutionInfo
 from volsegtools._processing.dask_backend import DaskBackend
 from volsegtools._storage import DataSet
 from volsegtools.abc import Converter
@@ -58,13 +59,10 @@ class NGFFConverter(Converter):
 
         info = DataSetInfo(
             filename=str(input_path),
-            resolution=0,
             axis_order=AxisValues(*order),
-            cell_size=AxisValues(*cell_size),
             origin=AxisValues(*translation),
             id=dataset_id,
             kind=kind,
-            lattice_shape=AxisValues(*array.shape),
         )
         dataset = DataSet(context.working_store, info)
 
@@ -73,8 +71,14 @@ class NGFFConverter(Converter):
         if "c" not in dim_labels:
             array = array[:, None, ...]
 
+        resolution_info = ResolutionInfo(
+            cell_size=AxisValues(*cell_size),
+            lattice_shape=AxisValues(*array.shape),
+        )
+        resolution = dataset.add_resolution(resolution_info)
+
         for frame_data in array:
-            frame = dataset.add_time_frame()
+            frame = resolution.add_time_frame()
             for idx, channel_data in enumerate(frame_data):
                 channel = frame.add_channel(idx)
                 channel.set_data(channel_data.rechunk("auto"), DaskBackend)

@@ -7,6 +7,7 @@ import pyometiff as ome_tiff
 
 from volsegtools._core import AxisValues, DataKind
 from volsegtools._model import DataSetInfo, PipelineContext
+from volsegtools._model.metadata import ResolutionInfo
 from volsegtools._processing.dask_backend import DaskBackend
 from volsegtools._storage import DataSet
 from volsegtools.abc import Converter
@@ -59,24 +60,32 @@ class TIFFConverter(Converter):
             filename=str(input_path),
             resolution=0,
             axis_order=AxisValues(*axis_order),
+            origin=AxisValues(
+                metadata["Plane"]["PositionX"],
+                metadata["Plane"]["PositionY"],
+                metadata["Plane"]["PositionZ"],
+            ),
+            id=dataset_id,
+            kind=DataKind.VOLUME,
+        )
+        data_set = DataSet(context.working_store, data_set_info)
+
+        resolution_info = ResolutionInfo(
             cell_size=AxisValues(
                 metadata["PhysicalSizeX"] * metadata["SizeX"],
                 metadata["PhysicalSizeY"] * metadata["SizeY"],
                 metadata["PhysicalSizeZ"] * metadata["SizeZ"],
             ),
-            origin=AxisValues(0, 0, 0),
-            id=input_path.stem,
-            kind=DataKind.VOLUME,
             lattice_shape=AxisValues(
                 metadata["SizeX"],
                 metadata["SizeY"],
                 metadata["SizeZ"],
             ),
         )
+        resolution = data_set.add_resolution(resolution_info)
 
-        data_set = DataSet(context.working_store, data_set_info)
         for time_frame_data in data:
-            frame = data_set.add_time_frame()
+            frame = resolution.add_time_frame()
             for idx, channel_data in enumerate(time_frame_data):
                 channel = frame.add_channel(idx)
                 channel.set_data(channel_data, DaskBackend)

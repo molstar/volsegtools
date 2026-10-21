@@ -6,6 +6,7 @@ import nibabel as nib
 
 from volsegtools._core import AxisValues, DataKind
 from volsegtools._model import DataSetInfo, PipelineContext
+from volsegtools._model.metadata import ResolutionInfo
 from volsegtools._processing.numpy_backend import NumPyBackend
 from volsegtools._storage import DataSet
 from volsegtools.abc import Converter
@@ -43,16 +44,20 @@ class NiiConverter(Converter):
 
         data_set_info = DataSetInfo(
             filename=input_path.name,
-            resolution=0,
             axis_order=AxisValues(0, 1, 2),
-            cell_size=AxisValues(10, 10, 10),
             origin=AxisValues(0, 0, 0),
             id=input_path.name,
             kind=DataKind.SEGMENTATION_VOLUME,
-            lattice_shape=AxisValues(data.shape[0], data.shape[1], data.shape[2]),
         )
         data_set = DataSet(context.working_store, data_set_info)
-        frame = data_set.add_time_frame()
+
+        resolution_info = ResolutionInfo(
+            cell_size=AxisValues(10, 10, 10),
+            lattice_shape=AxisValues(data.shape[0], data.shape[1], data.shape[2]),
+        )
+        resolution = data_set.add_resolution(resolution_info)
+
+        frame = resolution.add_time_frame()
         channel = frame.add_channel(0)
         channel.set_data(data, NumPyBackend)
 

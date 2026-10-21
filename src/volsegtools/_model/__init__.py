@@ -11,6 +11,7 @@ from .metadata import (
     DataSetInfo,
     DescriptiveStatistics,
     MeshInfo,
+    ResolutionInfo,
     TimeFrameInfo,
 )
 from .pipeline_state import (
@@ -30,6 +31,7 @@ __all__ = [
     "PipelineStageKind",
     "PipelineState",
     "PipelineStateManager",
+    "ResolutionInfo",
     "StoringParameters",
     "TimeFrameInfo",
 ]

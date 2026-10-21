@@ -9,7 +9,7 @@ import h5py as hdf
 import numpy as np
 
 from volsegtools._core import AxisValues, DataKind, unit_from_str
-from volsegtools._model import DataSetInfo, PipelineContext
+from volsegtools._model import DataSetInfo, PipelineContext, ResolutionInfo
 from volsegtools._processing.dask_backend import DaskBackend
 from volsegtools._storage import DataSet
 from volsegtools.abc import Converter
@@ -149,24 +149,26 @@ class ImarisConverter(Converter):
         metadata = channels[0].metadata
         shape = channels[0].data.shape
 
-        info = DataSetInfo(
+        dataset_info = DataSetInfo(
             filename=str(input_path),
-            resolution=0,
             axis_order=AxisValues(2, 1, 0),
-            cell_size=cell_size,
             origin=AxisValues(
                 metadata["ExtMin0"], metadata["ExtMin1"], metadata["ExtMin2"]
             ),
             id=input_path.stem,
             kind=DataKind.VOLUME,
+        )
+        data_set = DataSet(context.working_store, dataset_info)
+
+        resolution_info = ResolutionInfo(
+            cell_size=cell_size,
             lattice_shape=AxisValues(
                 shape[2],
                 shape[1],
                 shape[0],
             ),
         )
-
-        data_set = DataSet(context.working_store, info)
+        resolution = data_set.add_resolution(resolution_info)
 
         encountered_channel_ids = []
 
@@ -175,9 +177,9 @@ class ImarisConverter(Converter):
                 continue
 
             metadata = channel_info.metadata
-            if not (0 <= channel_info.time_frame < len(data_set.time_frames)):
-                for _ in range(channel_info.time_frame + 1 - len(data_set.time_frames)):
-                    data_set.add_time_frame()
+            if not (0 <= channel_info.time_frame < len(resolution.time_frames)):
+                for _ in range(channel_info.time_frame + 1 - len(resolution.time_frames)):
+                    resolution.add_time_frame()
 
             # It is still not clear what is stored in the Imaris file,
             # sometimes some new channel appears, we have to store it somehow
@@ -186,7 +188,7 @@ class ImarisConverter(Converter):
             while idx in encountered_channel_ids:
                 idx += 1
 
-            channel = data_set.time_frames[channel_info.time_frame].add_channel(idx)
+            channel = resolution.time_frames[channel_info.time_frame].add_channel(idx)
             encountered_channel_ids.append(idx)
 
             dask_data = da.from_array(channel_info.data)

@@ -9,8 +9,9 @@ if TYPE_CHECKING:
     import trimesh
 
     from volsegtools._core.computation_backend import ComputationBackend
-
-    from .time_frame import TimeFrame
+    from volsegtools._storage.data_set import DataSet
+    from volsegtools._storage.resolution import Resolution
+    from volsegtools._storage.time_frame import TimeFrame
 
 
 class Mesh:
@@ -29,11 +30,15 @@ class Mesh:
         return self.time_frame.zarr_path / f"mesh_{self.metadata.id}"
 
     @property
-    def data_set(self):
-        return self.parent.parent
+    def resolution(self) -> Resolution:
+        return self.time_frame.resolution
 
     @property
-    def time_frame(self):
+    def data_set(self) -> DataSet:
+        return self.resolution.parent
+
+    @property
+    def time_frame(self) -> TimeFrame:
         return self.parent
 
     def __str__(self):

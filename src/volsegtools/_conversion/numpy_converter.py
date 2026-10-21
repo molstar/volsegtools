@@ -5,7 +5,7 @@ import logging
 import numpy as np
 
 from volsegtools._core import AxisValues, DataKind
-from volsegtools._model import DataSetInfo, PipelineContext
+from volsegtools._model import DataSetInfo, PipelineContext, ResolutionInfo
 from volsegtools._processing import NumPyBackend
 from volsegtools._storage import DataSet
 from volsegtools.abc import Converter
@@ -42,15 +42,20 @@ class NumpyConverter(Converter):
             resolution=0,
             id=input_path.stem,
             kind=DataKind.VOLUME,
+        )
+        data_set = DataSet(context.working_store, data_set_info)
+
+        resolution_info = ResolutionInfo(
+            cell_size=AxisValues(1, 1, 1),
             lattice_shape=AxisValues(
                 data.shape[0],
                 data.shape[1],
                 data.shape[2],
             ),
         )
+        resolution = data_set.add_resolution(resolution_info)
 
-        data_set = DataSet(context.working_store, data_set_info)
-        frame = data_set.add_time_frame()
+        frame = resolution.add_time_frame()
         channel = frame.add_channel(0)
         channel.set_data(data, NumPyBackend)
 

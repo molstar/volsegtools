@@ -65,7 +65,7 @@ class JSONSizeReporter(SizeReporter):
             {
                 "id": channel.data_set.metadata.id,
                 "channel_id": channel.metadata.id,
-                "resolution": channel.data_set.metadata.resolution,
+                "resolution": channel.resolution.metadata.id,
                 "label": label,
                 "size_in_bytes": size_in_bytes,
                 "size_in_mega_bytes": size_in_bytes / 1_000_000,

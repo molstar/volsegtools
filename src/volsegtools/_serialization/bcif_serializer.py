@@ -8,10 +8,10 @@ import ciftools
 import ciftools.serialization
 import numpy as np
 
-from volsegtools._core.axis_values import AxisValues
 from volsegtools._model.pipeline_state import PipelineContext
 from volsegtools._processing import DaskBackend
 from volsegtools._storage import Channel, DataSet
+from volsegtools._storage.data_set import create_file_name
 from volsegtools.abc import Serializer
 
 
@@ -37,21 +37,15 @@ class BCIFSerializer(Serializer):
 
             # This is slight hack, because we have to propagate the lattice shape
             # value to the VolumeData3DDesc.
-            channel.data_set.metadata.lattice_shape = AxisValues(*data.shape)
 
             data = np.ravel(data.compute(), order="F")
 
-            writer.start_data_block("VOLUME")
             writer.write_category(VolumeData3DInfoDescNew, [channel])
+            writer.start_data_block("EM")
 
             writer.write_category(VolumeData3DDesc, [data])
 
-            file_name = (
-                f"{data_set.metadata.id}"
-                f"_r{data_set.metadata.resolution}"
-                f"_tf{channel.parent.metadata.id}"
-                f"_ch{channel.metadata.id}.bcif"
-            )
+            file_name = create_file_name(channel, ".bcif")
 
             output_file_path = output_path / file_name
             output_file_path.write_bytes(writer.encode())
@@ -71,7 +65,8 @@ class VolumeData3DInfoDescNew(CategoryDesc):
         def volume_server_encoder(_):
             return BYTE_ARRAY
 
-        data_set = channel.parent.parent
+        data_set = channel.data_set
+        resolution = channel.resolution
 
         return [
             Field.strings(
@@ -134,25 +129,25 @@ class VolumeData3DInfoDescNew(CategoryDesc):
             ),
             Field.numbers(
                 name="sample_rate",
-                value=lambda d, i: 2**data_set.metadata.resolution,
+                value=lambda d, i: 2**resolution.metadata.id,
                 encoder=volume_server_encoder,
                 dtype="i4",
             ),
             Field.numbers(
                 name="sample_count[0]",
-                value=lambda d, i: data_set.metadata.lattice_shape.x,
+                value=lambda d, i: resolution.metadata.lattice_shape.x,
                 encoder=volume_server_encoder,
                 dtype="i4",
             ),
             Field.numbers(
                 name="sample_count[1]",
-                value=lambda d, i: data_set.metadata.lattice_shape.y,
+                value=lambda d, i: resolution.metadata.lattice_shape.y,
                 encoder=volume_server_encoder,
                 dtype="i4",
             ),
             Field.numbers(
                 name="sample_count[2]",
-                value=lambda d, i: data_set.metadata.lattice_shape.z,
+                value=lambda d, i: resolution.metadata.lattice_shape.z,
                 encoder=volume_server_encoder,
                 dtype="i4",
             ),
@@ -164,19 +159,19 @@ class VolumeData3DInfoDescNew(CategoryDesc):
             ),
             Field.numbers(
                 name="spacegroup_cell_size[0]",
-                value=lambda d, i: data_set.metadata.cell_size.x,
+                value=lambda d, i: resolution.metadata.cell_size.x,
                 encoder=volume_server_encoder,
                 dtype="f8",
             ),
             Field.numbers(
                 name="spacegroup_cell_size[1]",
-                value=lambda d, i: data_set.metadata.cell_size.y,
+                value=lambda d, i: resolution.metadata.cell_size.y,
                 encoder=volume_server_encoder,
                 dtype="f8",
             ),
             Field.numbers(
                 name="spacegroup_cell_size[2]",
-                value=lambda d, i: data_set.metadata.cell_size.z,
+                value=lambda d, i: resolution.metadata.cell_size.z,
                 encoder=volume_server_encoder,
                 dtype="f8",
             ),

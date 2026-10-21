@@ -38,6 +38,13 @@ class DownsamplignAlgorithmKind(enum.StrEnum):
     NULL = "null"
 
 
+class BundlingKind(enum.StrEnum):
+    NULL = "null"
+    MVXS = "mvsx"
+    RESOLUTION_ZIP = "resolution_zip"
+    ZIP = "zip"
+
+
 class ErrorFunctionKind(enum.StrEnum):
     MSE = "mse"
     MAE = "mae"
@@ -48,11 +55,24 @@ class ErrorFunctionKind(enum.StrEnum):
     HFEN = "hfen"
 
 
-class BundlingKind(enum.StrEnum):
-    NULL = "null"
-    MVXS = "mvsx"
-    RESOLUTION_ZIP = "resolution_zip"
-    ZIP = "zip"
+def get_error_function(kind: ErrorFunctionKind):
+    match kind:
+        case ErrorFunctionKind.MSE:
+            return vst.MSE()
+        case ErrorFunctionKind.MAE:
+            return vst.MAE()
+        case ErrorFunctionKind.RMSE:
+            return vst.RMSE()
+        case ErrorFunctionKind.SSIM:
+            return vst.SSIM()
+        case ErrorFunctionKind.VFM:
+            return vst.VFM()
+        case ErrorFunctionKind.HFEN:
+            return vst.HFEN()
+        case ErrorFunctionKind.PSNR:
+            return vst.PSNR()
+        case _:
+            raise RuntimeError("Unknown kind encountered")
 
 
 class SerializerKind(enum.StrEnum):
@@ -374,9 +394,9 @@ def run(
 
     if error_func is not None:
         builder.add_post_process_step(
-            vst.ErrorEvaluationMultiStep(
-                [str(e) for e in error_func],
-                output_path=workdir / "errors.json",
+            vst.ErrorEvaluationStep(
+                [get_error_function(fn) for fn in error_func],
+                reporter=vst.StdoutErrorReporter(),
                 label=f"{strategy}",
             )
         )

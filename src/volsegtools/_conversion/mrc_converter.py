@@ -7,7 +7,7 @@ import mrcfile
 
 from volsegtools._core import AxisValues, DataKind
 from volsegtools._core.axis_values import create_reorder_permutation
-from volsegtools._model import DataSetInfo, PipelineContext
+from volsegtools._model import DataSetInfo, PipelineContext, ResolutionInfo
 from volsegtools._processing.dask_backend import DaskBackend
 from volsegtools._storage import DataSet
 from volsegtools.abc import Converter
@@ -52,7 +52,7 @@ class MRCConverter(Converter):
         array = da.from_array(mrc.data, chunks=(256, 256, 256))
         array = array.transpose(create_reorder_permutation(order))
 
-        data_set_info = MRCConverter._collect_data_set_metadata(
+        data_set_info, resolution_info = MRCConverter._collect_data_set_metadata(
             input_path,
             mrc.header,
             array,
@@ -61,8 +61,8 @@ class MRCConverter(Converter):
         mrc.close()
 
         data_set = DataSet(context.working_store, data_set_info)
-        frame = data_set.add_time_frame()
-
+        resolution = data_set.add_resolution(resolution_info)
+        frame = resolution.add_time_frame()
         channel = frame.add_channel(0)
         channel.set_data(array, DaskBackend)
         return [data_set]
@@ -84,7 +84,9 @@ class MRCConverter(Converter):
         raise NotImplementedError
 
     @staticmethod
-    def _collect_data_set_metadata(file, mrc_header, array, kind) -> DataSetInfo:
+    def _collect_data_set_metadata(
+        file, mrc_header, array, kind
+    ) -> tuple[DataSetInfo, ResolutionInfo]:
 
         original_order = AxisValues(
             int(mrc_header.maps) - 1,
@@ -109,13 +111,17 @@ class MRCConverter(Converter):
         # We have to completely remove the suffixes to get the id.
         filename = Path(str(file).strip("".join(file.suffixes))).stem
 
-        return DataSetInfo(
+        dataset_info = DataSetInfo(
             filename=str(file),
-            resolution=0,
             axis_order=original_order,
-            cell_size=cell_size,
             origin=origin,
             id=filename,
             kind=kind,
+        )
+
+        resolution_info = ResolutionInfo(
+            cell_size=cell_size,
             lattice_shape=lattice_shape,
         )
+
+        return dataset_info, resolution_info

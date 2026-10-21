@@ -5,7 +5,7 @@ import logging
 import trimesh
 
 from volsegtools._core import AxisValues, DataKind
-from volsegtools._model import DataSetInfo, PipelineContext
+from volsegtools._model import DataSetInfo, PipelineContext, ResolutionInfo
 from volsegtools._processing.mesh_backend import MeshBackend
 from volsegtools._storage import DataSet
 from volsegtools.abc import Converter
@@ -38,16 +38,19 @@ class MeshConverter(Converter):
 
         data_set_info = DataSetInfo(
             filename=input_path.name,
-            resolution=0,
             axis_order=AxisValues(0, 1, 2),
-            cell_size=AxisValues(0, 0, 0),
             origin=AxisValues(0, 0, 0),
             id=input_path.name,
             kind=DataKind.SEGMENTATION_MESH,
-            lattice_shape=AxisValues(0, 0, 0),
         )
         data_set = DataSet(context.working_store, data_set_info)
-        frame = data_set.add_time_frame()
+        resolution = data_set.add_resolution(
+            ResolutionInfo(
+                cell_size=AxisValues(0, 0, 0),
+                lattice_shape=AxisValues(0, 0, 0),
+            )
+        )
+        frame = resolution.add_time_frame()
         mesh = frame.add_mesh(0)
         mesh.set_data(mesh_data, MeshBackend)
 

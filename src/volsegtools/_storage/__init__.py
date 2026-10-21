@@ -9,6 +9,7 @@ from .channel import Channel
 from .data_handle import DataHandle
 from .data_set import DataSet, create_file_name, info_from_file_path
 from .mesh import Mesh
+from .resolution import Resolution
 from .time_frame import TimeFrame
 
 __all__ = [
@@ -16,6 +17,7 @@ __all__ = [
     "DataHandle",
     "DataSet",
     "Mesh",
+    "Resolution",
     "TimeFrame",
     "create_file_name",
     "info_from_file_path",

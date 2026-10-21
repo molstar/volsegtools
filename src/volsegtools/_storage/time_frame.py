@@ -7,23 +7,28 @@ from volsegtools._storage.channel import Channel
 from volsegtools._storage.mesh import Mesh
 
 if TYPE_CHECKING:
-    from .volsegtools._storage.data_set import DataSet
+    from volsegtools._storage.data_set import DataSet
+    from volsegtools._storage.resolution import Resolution
 
 
 class TimeFrame:
-    def __init__(self, parent: DataSet, id):
+    def __init__(self, parent: Resolution, id):
         self.parent = parent
         self.channels = []
         self.meshes = []
         self.metadata = TimeFrameInfo(id=id)
 
     @property
-    def data_set(self):
+    def resolution(self) -> Resolution:
         return self.parent
 
     @property
+    def data_set(self) -> DataSet:
+        return self.parent.data_set
+
+    @property
     def zarr_path(self):
-        return self.data_set.zarr_path / f"time_frame_{self.metadata.id}"
+        return self.resolution.zarr_path / f"time_frame_{self.metadata.id}"
 
     def add_channel(self, id):
         self.channels.append(Channel(self, id))

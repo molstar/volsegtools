@@ -9,7 +9,7 @@ import mrcfile
 
 from volsegtools._model.pipeline_state import PipelineContext
 from volsegtools._processing import DaskBackend
-from volsegtools._storage.data_set import DataSet
+from volsegtools._storage.data_set import DataSet, create_file_name
 from volsegtools.abc import Serializer
 
 vst_logger = logging.getLogger("volsegtools")
@@ -25,12 +25,7 @@ class MRCSerializer(Serializer):
         output_files = []
 
         for channel in data_set.flat_channel_iter():
-            file_name = (
-                f"{data_set.metadata.id}"
-                f"_r{data_set.metadata.resolution}"
-                f"_tf{channel.parent.metadata.id}"
-                f"_ch{channel.metadata.id}.mrc"
-            )
+            file_name = create_file_name(channel, ".mrc")
             output_file_path = output_path / file_name
             vst_logger.info(f"... serialized into {output_file_path}")
 
@@ -51,9 +46,9 @@ class MRCSerializer(Serializer):
                 mrc.header.mapr = data_set.metadata.axis_order.y + 1
                 mrc.header.mapc = data_set.metadata.axis_order.z + 1
 
-                mrc.header.cella.x = data_set.metadata.cell_size.x
-                mrc.header.cella.y = data_set.metadata.cell_size.y
-                mrc.header.cella.z = data_set.metadata.cell_size.z
+                mrc.header.cella.x = channel.resolution.metadata.cell_size.x
+                mrc.header.cella.y = channel.resolution.metadata.cell_size.y
+                mrc.header.cella.z = channel.resolution.metadata.cell_size.z
 
                 mrc.header.nxstart = data_set.metadata.origin.x
                 mrc.header.nystart = data_set.metadata.origin.y

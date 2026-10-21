@@ -6,7 +6,7 @@ import ciftools.serialization
 import dask.array as da
 
 from volsegtools._core import AxisValues, DataKind
-from volsegtools._model import DataSetInfo, PipelineContext
+from volsegtools._model import DataSetInfo, PipelineContext, ResolutionInfo
 from volsegtools._processing.dask_backend import DaskBackend
 from volsegtools._storage import DataSet
 from volsegtools.abc import Converter
@@ -51,18 +51,13 @@ class CIFConverter(Converter):
                 )
             )
             data = da.from_array(data)
+
             data_set_info = DataSetInfo(
                 filename=str(input_path),
-                resolution=0,
                 axis_order=AxisValues(
                     metadata["axis_order[0]"].get_float(0),
                     metadata["axis_order[1]"].get_float(0),
                     metadata["axis_order[2]"].get_float(0),
-                ),
-                cell_size=AxisValues(
-                    metadata["spacegroup_cell_size[0]"].get_float(0),
-                    metadata["spacegroup_cell_size[1]"].get_float(0),
-                    metadata["spacegroup_cell_size[2]"].get_float(0),
                 ),
                 origin=AxisValues(
                     metadata["origin[0]"].get_float(0),
@@ -71,15 +66,24 @@ class CIFConverter(Converter):
                 ),
                 id=input_path.stem,
                 kind=DataKind.VOLUME,
-                lattice_shape=AxisValues(
-                    data.shape[0],
-                    data.shape[1],
-                    data.shape[2],
-                ),
             )
 
             data_set = DataSet(context.working_store, data_set_info)
-            frame = data_set.add_time_frame()
+            resolution = data_set.add_resolution(
+                ResolutionInfo(
+                    cell_size=AxisValues(
+                        metadata["spacegroup_cell_size[0]"].get_float(0),
+                        metadata["spacegroup_cell_size[1]"].get_float(0),
+                        metadata["spacegroup_cell_size[2]"].get_float(0),
+                    ),
+                    lattice_shape=AxisValues(
+                        data.shape[0],
+                        data.shape[1],
+                        data.shape[2],
+                    ),
+                )
+            )
+            frame = resolution.add_time_frame()
             channel = frame.add_channel(0)
             channel.set_data(data, DaskBackend)
 

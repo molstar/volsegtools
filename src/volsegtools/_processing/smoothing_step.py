@@ -6,6 +6,7 @@ import numpy as np
 import scipy
 
 from volsegtools._core.data_kind import DataKind
+from volsegtools._core.gaussian_kernel import Gaussian3DKernel
 from volsegtools._model.pipeline_state import PipelineContext
 from volsegtools._processing.dask_backend import DaskBackend
 from volsegtools._storage.data_set import DataSet
@@ -25,6 +26,8 @@ class SmoothingStep(PostProcessingStep):
         self.appliable_kinds = appliable_kinds
         self.filter_fn = filter_fn
 
+    # We cannot use the Gaussian3DKernel class here, because this convolution
+    # is done separated -> we need 1D Gaussian kernel.
     def calculate_convolution_kernel(self):
         x = np.arange(-5, 5 + 1)
         kernel = np.exp(-(x**2) / (2 * 1**2))
@@ -32,7 +35,7 @@ class SmoothingStep(PostProcessingStep):
 
     async def execute(
         self,
-        data_sets: list[DataSet],
+        datasets: list[DataSet],
         context: PipelineContext,
     ) -> list[DataSet]:
         vst_logger.info("Started 'Smoothing' post-processing step")
@@ -46,13 +49,15 @@ class SmoothingStep(PostProcessingStep):
 
         results = []
 
-        for data_set in data_sets:
-            data_set_id = data_set.metadata.id
-            data_set_resolution = data_set.metadata.resolution
-            task_id = f"{data_set_id}-{data_set_resolution}"
-            for channel in data_set.flat_channel_iter():
-                id = channel.metadata.id
-                vst_logger.info(f"... smoothing '{task_id}-ch{id}'")
+        for dataset in datasets:
+            for channel in dataset.flat_channel_iter():
+                vst_logger.info(
+                    "... smoothing '%s-r%s-tf%s-c%s'",
+                    channel.data_set.metadata.id,
+                    channel.resolution.metadata.id,
+                    channel.time_frame.metadata.id,
+                    channel.metadata.id,
+                )
                 data = channel.handle.get_lattice(DaskBackend)
                 for axis in [0, 1, 2]:
                     depth = {x: 5 if x == axis else 0 for x in range(3)}
@@ -64,5 +69,6 @@ class SmoothingStep(PostProcessingStep):
                         dtype=data.dtype,
                     )
                     channel.set_data(smooth_data, DaskBackend)
-            results.append(data_set)
+            context.timer.push_event(f"Smoothing of '{dataset.metadata.id}'")
+            results.append(dataset)
         return results

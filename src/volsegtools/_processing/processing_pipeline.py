@@ -325,46 +325,49 @@ class ProcessingPipeline(volsegtools.abc.ProcessingPipeline):
             await step(volumes, segmentations, metadata, annotations, self.context)
 
     @pipeline_stage("Downsampling")
-    async def downsample(self, data_set: DataSet) -> list[DataSet]:
+    async def downsample(self, dataset: DataSet) -> DataSet:
         if self._downsampling_strategy is None:
             raise RuntimeError("There is not downsampling strategy to use")
 
-        resulting_data_sets: dict[int, DataSet] = {}
-
-        self.state.update(msg=f"Downsampling '{data_set.metadata.id}'")
-
-        if True:
-            resulting_data_sets[0] = data_set
+        self.state.update(msg=f"Downsampling '{dataset.metadata.id}'")
 
         msg = "Finished downsampling '{}' of ch{} with r{}"
 
-        for channel in data_set.flat_channel_iter():
-            frame = channel.parent.metadata.id
+        # TODO: add early check for the number of downsampling levels
 
-            for resolution, downsampled_data in enumerate(
+        lowest_resolution = dataset.resolutions[-1]
+
+        # TODO: add handling of mesh data
+        for channel in lowest_resolution.flat_channel_iter():
+            frame = channel.time_frame
+            for idx, downsampled_data in enumerate(
                 self._downsampling_strategy.execute(channel, self.context),
-                start=1,  # 0 is reserved for the original data resolution
+                start=lowest_resolution.metadata.id + 1,
             ):
-                if resolution not in resulting_data_sets:
-                    resulting_data_sets[resolution] = DataSet(self.context.working_store)
-                    resulting_data_sets[resolution].update_metadata(data_set)
-                    resulting_data_sets[resolution].metadata.resolution = resolution
-                    resulting_data_sets[resolution].metadata.lattice_shape = AxisValues(
-                        downsampled_data.shape[0],
-                        downsampled_data.shape[1],
-                        downsampled_data.shape[2],
-                    )
-                resulting_data_sets[resolution].add_time_frame(frame)
-                channel = (
-                    resulting_data_sets[resolution]
-                    .time_frames[frame]
-                    .add_channel(channel.metadata.id)
+                vst_logger.info(f"... downsampled channel %s to %s. resolution",
+                    channel.metadata.id,
+                    idx
                 )
-                channel.set_data(downsampled_data, DaskBackend)
+                lattice_shape = AxisValues(*downsampled_data.shape)
+
+                resolution, is_new = dataset.get_resolution(idx)
+                if is_new:
+                    resolution.metadata.cell_size = lowest_resolution.metadata.cell_size
+                    resolution.metadata.lattice_shape = lattice_shape
+
+                frame, _ = resolution.get_time_frame(frame.metadata.id)
+                new_channel = frame.add_channel(channel.metadata.id)
+
+                new_channel.set_data(downsampled_data, DaskBackend)
                 self.context.timer.push_event(
-                    msg.format(data_set.metadata.id, channel.metadata.id, resolution)
+                    msg.format(
+                        dataset.metadata.id, channel.metadata.id, resolution.metadata.id
+                    )
                 )
-        return list(resulting_data_sets.values())
+
+        vst_logger.info(f"... number of resolution levels: {len(dataset.resolutions)}")
+
+        return dataset
 
     @pipeline_stage("Post-Processing Steps")
     async def apply_post_processing_steps(self, data_set: list[DataSet]) -> list[DataSet]:

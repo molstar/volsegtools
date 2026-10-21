@@ -2,7 +2,7 @@ from pydantic import Field
 
 import pydantic
 
-from volsegtools._core import AxisValues, DataKind
+from volsegtools._core import AxisValues, DataKind, UnitKind
 
 
 class DataSetInfo(pydantic.BaseModel):
@@ -12,30 +12,30 @@ class DataSetInfo(pydantic.BaseModel):
     ----------
     filename
         File name of the input data.
-    resolution
-        Current resolution of said dataset.
     axis_order
         Axis order of the data held by the dataset.
-    cell_size
-        Dimensions of a single cell in the dataset.
     origin
         Origin of the coordinate system of the dataset.
     id
         Name of the dataset.
     kind
         Kind of the data held by the dataset.
-    lattice_shape
-        Dimensions of the data lattice.
+    unit
+        Unit of the dataset.
     """
 
     filename: str = "Unknown File"
-    resolution: int = -1
     axis_order: AxisValues = Field(default_factory=AxisValues)
-    cell_size: AxisValues = Field(default_factory=AxisValues)
     origin: AxisValues = Field(default_factory=AxisValues)
     id: str = "Unknown"
     kind: DataKind = DataKind.VOLUME
-    lattice_shape: AxisValues = Field(default_factory=AxisValues)
+    unit: UnitKind = UnitKind.UNKNOWN
+
+
+class ResolutionInfo(pydantic.BaseModel):
+    id: int = -1
+    cell_size: AxisValues
+    lattice_shape: AxisValues
 
 
 class TimeFrameInfo(pydantic.BaseModel):

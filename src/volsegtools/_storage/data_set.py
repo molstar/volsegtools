@@ -7,14 +7,16 @@ import re
 
 import pydantic
 
-from volsegtools._model import DataSetInfo
-from volsegtools._storage.time_frame import TimeFrame
+from volsegtools._core import AxisValues
+from volsegtools._model import DataSetInfo, ResolutionInfo
+from volsegtools._storage.resolution import Resolution
 
 if TYPE_CHECKING:
     from collections.abc import Iterator
 
     from volsegtools._core.working_store import WorkingStore
     from volsegtools._storage.channel import Channel
+    from volsegtools._storage.mesh import Mesh
 
 
 class DataSet:
@@ -26,8 +28,13 @@ class DataSet:
         else:
             self._metadata_is_set = False
             self.metadata = DataSetInfo()
-        self.time_frames = []
-        self._last_time_frame_num = 0
+        self.resolutions: list[Resolution] = []
+
+    def __iter__(self) -> Iterator[Resolution]:
+        yield from self.resolutions
+
+    def __getitem__(self, idx: int) -> Resolution:
+        return self.resolutions[idx]
 
     @property
     def zarr_path(self) -> Path:
@@ -35,25 +42,46 @@ class DataSet:
             root = Path("segmentation_data")
         else:
             root = Path("volume_data")
-        return root / self.metadata.id / f"resolution_{self.metadata.resolution}"
+        return root / self.metadata.id
 
-    def __iter__(self) -> Iterator[TimeFrame]:
-        yield from self.time_frames
-
-    # TODO: this should work with meshes too
     def flat_channel_iter(self) -> Iterator[Channel]:
-        for frame in self.time_frames:
-            yield from frame
+        """Iterator for all channels in each resolution."""
+        for resolution in self.resolutions:
+            yield from resolution.flat_channel_iter()
 
-    def add_time_frame(self, id: int = -1) -> TimeFrame:
-        if id == -1:
-            id = self._last_time_frame_num
-            self._last_time_frame_num += 1
+    def flat_mesh_iter(self) -> Iterator[Mesh]:
+        """Iterator for all meshes in each resolution."""
+        for resolution in self.resolutions:
+            yield from resolution.flat_mesh_iter()
 
-        # TODO: check that id is not present
+    def add_resolution(self, metadata: ResolutionInfo) -> Resolution:
+        """Adds a new resolution to the dataset.
 
-        self.time_frames.append(TimeFrame(self, id))
-        return self.time_frames[-1]
+        Parameters
+        ----------
+        metadata
+            The metadata used for creation of a new resolution.
+
+        Returns
+        -------
+        Resolution
+            Reference to the newly created resolution stored in the dataset.
+        """
+        new_idx = len(self.resolutions)
+        metadata.id = new_idx
+        self.resolutions.append(Resolution(parent=self, metadata=metadata))
+        return self.resolutions[-1]
+
+    def get_resolution(self, idx: int) -> tuple[Resolution, bool]:
+        try:
+            return self[idx], False
+        except IndexError:
+            return self.add_resolution(
+                ResolutionInfo(
+                    cell_size=AxisValues(0, 0, 0),
+                    lattice_shape=AxisValues(0, 0, 0),
+                )
+            ), True
 
     def update_metadata(self, other: Self) -> None:
         """Updates missing parts of metadata from other data set.
@@ -61,27 +89,31 @@ class DataSet:
         Generally, the other data set should contain the same data, but in
         different resolution.
 
-        The resolution is basically the only kind of data that is changing
-        from the conversion onwards. Therefore, it will not be updated here!
+        Only the metadata of the dataset are copied. The metadata for lower
+        level structures (resolutions, time frames, etc.) are not shared
+        between datasets and will **not** be copied.
         """
         if not self._metadata_is_set:
             self.metadata = other.metadata.model_copy(deep=True)
             self._metadata_is_set = True
 
     def __str__(self) -> str:
-        return f"DataSet({self.metadata}, {self.time_frames})"
+        return f"DataSet({self.metadata}, {self.resolutions})"
 
     def __repr__(self) -> str:
         return self.__str__()
 
 
-def create_file_name(channel: Channel, suffix: str = ".bcif") -> str:
-    return (
-        f"{channel.parent.parent.metadata.id}"
-        f"_r{channel.parent.parent.metadata.resolution}"
-        f"_tf{channel.parent.metadata.id}"
-        f"_c{channel.metadata.id}{suffix}"
+def create_file_name(data: Channel | Mesh, suffix: str = ".bcif") -> str:
+    base_name = (
+        f"{data.data_set.metadata.id}"
+        f"_r{data.resolution.metadata.id}"
+        f"_tf{data.time_frame.metadata.id}"
     )
+
+    base_name += f"_{data.metadata.id}{suffix}"
+
+    return base_name
 
 
 class FileNameInfo(pydantic.BaseModel):
@@ -102,7 +134,8 @@ def info_from_file_path(file_path: Path) -> FileNameInfo:
         r"(?P<set_id>.*)"
         r"_r(?P<resolution>\d+)"
         r"_tf(?P<time_frame>\d+)"
-        r"_ch(?P<channel>\d+)\.(?P<suffix>.*)$"
+        r"_(?:ch|mesh)(?P<channel>\d+)"
+        r"\.(?P<suffix>.*)$"
     )
 
     match = re.match(file_name_re, file_name)
