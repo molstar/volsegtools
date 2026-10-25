@@ -31,33 +31,40 @@ def test_calculate_steps(channel):
 
 @pytest.mark.parametrize("channel", [64_000, ChannelStub(64_000)])
 @pytest.mark.parametrize(
-    "threshold,expected_levels",
+    "factor, threshold, expected_levels",
     [
-        (10, [8000, 1000, 125, 15.625]),
-        (100, [8000, 1000, 125]),
-        (1_000, [8000, 1000]),
-        (10_000, []),
+        (2, 10, [8000, 1000, 125, 15.625]),
+        (2, 100, [8000, 1000, 125]),
+        (2, 1_000, [8000, 1000]),
+        (2, 10_000, []),
+        (3, 10, [2370.3703703703704, 87.79149519890261]),
+        (3, 100, [2370.3703703703704]),
+        (3, 1000, [2370.3703703703704]),
+        (3, 10_000, []),
     ],
 )
-def test_effect_of_threshold_on_sizes(channel, threshold, expected_levels):
-    assert (
-        vst.calculate_approx_downsampled_sizes(channel, threshold, 2)
-        == expected_levels
-    )
+def test_effect_of_threshold_on_sizes(channel, threshold, factor, expected_levels):
+    assert vst.calculate_approx_downsampled_sizes(
+        channel, threshold, factor
+    ) == pytest.approx(expected_levels)
 
 
 @pytest.mark.parametrize("channel", [64_000, ChannelStub(64_000)])
 @pytest.mark.parametrize(
-    "threshold,expected_levels",
+    "factor, threshold, expected_levels",
     [
-        (10, 4),
-        (100, 3),
-        (1_000, 2),
-        (10_000, 0),
+        (2, 10, 4),
+        (2, 100, 3),
+        (2, 1_000, 2),
+        (2, 10_000, 0),
+        (3, 10, 2),
+        (3, 100, 1),
+        (3, 1_000, 1),
+        (3, 10_000, 0),
     ],
 )
-def test_effect_of_threshold_on_steps(channel, threshold, expected_levels):
-    assert vst.calculate_steps(channel, threshold, 2) == expected_levels
+def test_effect_of_threshold_on_steps(channel, factor, threshold, expected_levels):
+    assert vst.calculate_steps(channel, threshold, factor) == expected_levels
 
 
 @pytest.mark.parametrize("channel", [0, ChannelStub(0)])
