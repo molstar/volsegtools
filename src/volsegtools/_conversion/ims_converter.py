@@ -9,7 +9,7 @@ import h5py as hdf
 import numpy as np
 
 from volsegtools._core import AxisValues, DataKind, unit_from_str
-from volsegtools._model import DataSetInfo, PipelineContext, ResolutionInfo
+from volsegtools._model import DataSetMetadata, PipelineContext, ResolutionMetadata
 from volsegtools._processing.dask_backend import DaskBackend
 from volsegtools._storage import DataSet
 from volsegtools.abc import Converter
@@ -149,7 +149,7 @@ class ImarisConverter(Converter):
         metadata = channels[0].metadata
         shape = channels[0].data.shape
 
-        dataset_info = DataSetInfo(
+        dataset_info = DataSetMetadata(
             filename=str(input_path),
             axis_order=AxisValues(2, 1, 0),
             origin=AxisValues(
@@ -160,7 +160,7 @@ class ImarisConverter(Converter):
         )
         data_set = DataSet(context.working_store, dataset_info)
 
-        resolution_info = ResolutionInfo(
+        resolution_info = ResolutionMetadata(
             cell_size=cell_size,
             lattice_shape=AxisValues(
                 shape[2],

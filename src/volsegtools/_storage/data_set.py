@@ -8,7 +8,7 @@ import re
 import pydantic
 
 from volsegtools._core import AxisValues
-from volsegtools._model import DataSetInfo, ResolutionInfo
+from volsegtools._model import DataSetMetadata, ResolutionMetadata
 from volsegtools._storage.resolution import Resolution
 
 if TYPE_CHECKING:
@@ -20,14 +20,14 @@ if TYPE_CHECKING:
 
 
 class DataSet:
-    def __init__(self, store: WorkingStore, metadata: DataSetInfo | None = None):
+    def __init__(self, store: WorkingStore, metadata: DataSetMetadata | None = None):
         self.store = store
         if metadata:
             self._metadata_is_set = True
             self.metadata = metadata
         else:
             self._metadata_is_set = False
-            self.metadata = DataSetInfo()
+            self.metadata = DataSetMetadata()
         self.resolutions: list[Resolution] = []
 
     def __iter__(self) -> Iterator[Resolution]:
@@ -54,7 +54,7 @@ class DataSet:
         for resolution in self.resolutions:
             yield from resolution.flat_mesh_iter()
 
-    def add_resolution(self, metadata: ResolutionInfo) -> Resolution:
+    def add_resolution(self, metadata: ResolutionMetadata) -> Resolution:
         """Adds a new resolution to the dataset.
 
         Parameters
@@ -77,7 +77,7 @@ class DataSet:
             return self[idx], False
         except IndexError:
             return self.add_resolution(
-                ResolutionInfo(
+                ResolutionMetadata(
                     cell_size=AxisValues(0, 0, 0),
                     lattice_shape=AxisValues(0, 0, 0),
                 )

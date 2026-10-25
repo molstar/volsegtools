@@ -2,7 +2,7 @@ from __future__ import annotations
 
 from typing import TYPE_CHECKING
 
-from volsegtools._model import TimeFrameInfo
+from volsegtools._model import TimeFrameMetadata
 from volsegtools._storage.channel import Channel
 from volsegtools._storage.mesh import Mesh
 
@@ -16,7 +16,7 @@ class TimeFrame:
         self.parent = parent
         self.channels = []
         self.meshes = []
-        self.metadata = TimeFrameInfo(id=id)
+        self.metadata = TimeFrameMetadata(id=id)
 
     @property
     def resolution(self) -> Resolution:

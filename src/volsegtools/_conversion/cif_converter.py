@@ -6,7 +6,7 @@ import ciftools.serialization
 import dask.array as da
 
 from volsegtools._core import AxisValues, DataKind
-from volsegtools._model import DataSetInfo, PipelineContext, ResolutionInfo
+from volsegtools._model import DataSetMetadata, PipelineContext, ResolutionMetadata
 from volsegtools._processing.dask_backend import DaskBackend
 from volsegtools._storage import DataSet
 from volsegtools.abc import Converter
@@ -52,7 +52,7 @@ class CIFConverter(Converter):
             )
             data = da.from_array(data)
 
-            data_set_info = DataSetInfo(
+            data_set_info = DataSetMetadata(
                 filename=str(input_path),
                 axis_order=AxisValues(
                     metadata["axis_order[0]"].get_float(0),
@@ -70,7 +70,7 @@ class CIFConverter(Converter):
 
             data_set = DataSet(context.working_store, data_set_info)
             resolution = data_set.add_resolution(
-                ResolutionInfo(
+                ResolutionMetadata(
                     cell_size=AxisValues(
                         metadata["spacegroup_cell_size[0]"].get_float(0),
                         metadata["spacegroup_cell_size[1]"].get_float(0),

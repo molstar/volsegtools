@@ -3,7 +3,7 @@ from __future__ import annotations
 from pathlib import Path
 from typing import TYPE_CHECKING
 
-from volsegtools._model import ResolutionInfo
+from volsegtools._model import ResolutionMetadata
 from volsegtools._storage.time_frame import TimeFrame
 
 if TYPE_CHECKING:
@@ -24,9 +24,9 @@ class Resolution:
     This means that datasets effectively are holding a resolution hierarchy.
     """
 
-    def __init__(self, parent: DataSet, metadata: ResolutionInfo | None = None):
+    def __init__(self, parent: DataSet, metadata: ResolutionMetadata | None = None):
         self.parent = parent
-        self.metadata = metadata if metadata is not None else ResolutionInfo()
+        self.metadata = metadata if metadata is not None else ResolutionMetadata()
         self.time_frames: list[TimeFrame] = []
         self._last_time_frame_num = 0
 

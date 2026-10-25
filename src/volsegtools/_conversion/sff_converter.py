@@ -5,7 +5,7 @@ import logging
 import sfftkrw as sff
 
 from volsegtools._core import AxisValues, DataKind
-from volsegtools._model import DataSetInfo, PipelineContext, ResolutionInfo
+from volsegtools._model import DataSetMetadata, PipelineContext, ResolutionMetadata
 from volsegtools._processing.mesh_backend import MeshBackend
 from volsegtools._processing.numpy_backend import NumPyBackend
 from volsegtools._storage import DataSet
@@ -45,9 +45,8 @@ class SFFConverter(Converter):
         # in a single file...
         lshape = seg.lattice_list[0].data_array.shape
 
-        data_set_info = DataSetInfo(
+        data_set_info = DataSetMetadata(
             filename=input_path.name,
-            resolution=0,
             axis_order=AxisValues(0, 1, 2),
             origin=AxisValues(0, 0, 0),
             id=input_path.name,
@@ -55,7 +54,7 @@ class SFFConverter(Converter):
         )
         data_set = DataSet(context.working_store, data_set_info)
 
-        resolution_info = ResolutionInfo(
+        resolution_info = ResolutionMetadata(
             cell_size=AxisValues(10, 10, 10),
             lattice_shape=AxisValues(lshape[0], lshape[1], lshape[2]),
         )
