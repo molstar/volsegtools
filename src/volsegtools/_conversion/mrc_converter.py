@@ -7,7 +7,7 @@ import mrcfile
 
 from volsegtools._core import AxisValues, DataKind
 from volsegtools._core.axis_values import create_reorder_permutation
-from volsegtools._model import DataSetInfo, PipelineContext, ResolutionInfo
+from volsegtools._model import DataSetMetadata, PipelineContext, ResolutionMetadata
 from volsegtools._processing.dask_backend import DaskBackend
 from volsegtools._storage import DataSet
 from volsegtools.abc import Converter
@@ -86,7 +86,7 @@ class MRCConverter(Converter):
     @staticmethod
     def _collect_data_set_metadata(
         file, mrc_header, array, kind
-    ) -> tuple[DataSetInfo, ResolutionInfo]:
+    ) -> tuple[DataSetMetadata, ResolutionMetadata]:
 
         original_order = AxisValues(
             int(mrc_header.maps) - 1,
@@ -111,7 +111,7 @@ class MRCConverter(Converter):
         # We have to completely remove the suffixes to get the id.
         filename = Path(str(file).strip("".join(file.suffixes))).stem
 
-        dataset_info = DataSetInfo(
+        dataset_info = DataSetMetadata(
             filename=str(file),
             axis_order=original_order,
             origin=origin,
@@ -119,7 +119,7 @@ class MRCConverter(Converter):
             kind=kind,
         )
 
-        resolution_info = ResolutionInfo(
+        resolution_info = ResolutionMetadata(
             cell_size=cell_size,
             lattice_shape=lattice_shape,
         )

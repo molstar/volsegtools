@@ -5,7 +5,7 @@ import logging
 import numpy as np
 
 from volsegtools._core import AxisValues, DataKind
-from volsegtools._model import DataSetInfo, PipelineContext, ResolutionInfo
+from volsegtools._model import DataSetMetadata, PipelineContext, ResolutionMetadata
 from volsegtools._processing import NumPyBackend
 from volsegtools._storage import DataSet
 from volsegtools.abc import Converter
@@ -37,15 +37,14 @@ class NumpyConverter(Converter):
         if len(data.shape) != 3:
             raise RuntimeError("Numpy data has to be 3D")
 
-        data_set_info = DataSetInfo(
+        data_set_info = DataSetMetadata(
             filename=input_path.name,
-            resolution=0,
             id=input_path.stem,
             kind=DataKind.VOLUME,
         )
         data_set = DataSet(context.working_store, data_set_info)
 
-        resolution_info = ResolutionInfo(
+        resolution_info = ResolutionMetadata(
             cell_size=AxisValues(1, 1, 1),
             lattice_shape=AxisValues(
                 data.shape[0],

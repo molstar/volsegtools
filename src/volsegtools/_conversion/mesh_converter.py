@@ -5,7 +5,7 @@ import logging
 import trimesh
 
 from volsegtools._core import AxisValues, DataKind
-from volsegtools._model import DataSetInfo, PipelineContext, ResolutionInfo
+from volsegtools._model import DataSetMetadata, PipelineContext, ResolutionMetadata
 from volsegtools._processing.mesh_backend import MeshBackend
 from volsegtools._storage import DataSet
 from volsegtools.abc import Converter
@@ -36,7 +36,7 @@ class MeshConverter(Converter):
         vst_logger.info(f"... converting '{input_path}'")
         mesh_data = trimesh.load_mesh(input_path)
 
-        data_set_info = DataSetInfo(
+        data_set_info = DataSetMetadata(
             filename=input_path.name,
             axis_order=AxisValues(0, 1, 2),
             origin=AxisValues(0, 0, 0),
@@ -45,7 +45,7 @@ class MeshConverter(Converter):
         )
         data_set = DataSet(context.working_store, data_set_info)
         resolution = data_set.add_resolution(
-            ResolutionInfo(
+            ResolutionMetadata(
                 cell_size=AxisValues(0, 0, 0),
                 lattice_shape=AxisValues(0, 0, 0),
             )

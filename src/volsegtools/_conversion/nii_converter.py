@@ -5,8 +5,7 @@ import logging
 import nibabel as nib
 
 from volsegtools._core import AxisValues, DataKind
-from volsegtools._model import DataSetInfo, PipelineContext
-from volsegtools._model.metadata import ResolutionInfo
+from volsegtools._model import DataSetMetadata, PipelineContext, ResolutionMetadata
 from volsegtools._processing.numpy_backend import NumPyBackend
 from volsegtools._storage import DataSet
 from volsegtools.abc import Converter
@@ -42,7 +41,7 @@ class NiiConverter(Converter):
         nibabel_img = nib.load(str(input_path))
         data = nibabel_img.get_fdata()
 
-        data_set_info = DataSetInfo(
+        data_set_info = DataSetMetadata(
             filename=input_path.name,
             axis_order=AxisValues(0, 1, 2),
             origin=AxisValues(0, 0, 0),
@@ -51,7 +50,7 @@ class NiiConverter(Converter):
         )
         data_set = DataSet(context.working_store, data_set_info)
 
-        resolution_info = ResolutionInfo(
+        resolution_info = ResolutionMetadata(
             cell_size=AxisValues(10, 10, 10),
             lattice_shape=AxisValues(data.shape[0], data.shape[1], data.shape[2]),
         )

@@ -6,8 +6,7 @@ import dask.array as da
 import pyometiff as ome_tiff
 
 from volsegtools._core import AxisValues, DataKind
-from volsegtools._model import DataSetInfo, PipelineContext
-from volsegtools._model.metadata import ResolutionInfo
+from volsegtools._model import DataSetMetadata, PipelineContext, ResolutionMetadata
 from volsegtools._processing.dask_backend import DaskBackend
 from volsegtools._storage import DataSet
 from volsegtools.abc import Converter
@@ -61,9 +60,8 @@ class TIFFConverter(Converter):
         else:
             dataset_id = input_path.stem
 
-        data_set_info = DataSetInfo(
+        data_set_info = DataSetMetadata(
             filename=str(input_path),
-            resolution=0,
             axis_order=AxisValues(*axis_order),
             origin=AxisValues(
                 metadata["Plane"]["PositionX"],
@@ -75,7 +73,7 @@ class TIFFConverter(Converter):
         )
         data_set = DataSet(context.working_store, data_set_info)
 
-        resolution_info = ResolutionInfo(
+        resolution_info = ResolutionMetadata(
             cell_size=AxisValues(
                 metadata["PhysicalSizeX"] * metadata["SizeX"],
                 metadata["PhysicalSizeY"] * metadata["SizeY"],

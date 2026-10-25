@@ -5,7 +5,7 @@ import pydantic
 from volsegtools._core import AxisValues, DataKind, UnitKind
 
 
-class DataSetInfo(pydantic.BaseModel):
+class DataSetMetadata(pydantic.BaseModel):
     """Metadata related to the data set.
 
     Attributes
@@ -32,13 +32,13 @@ class DataSetInfo(pydantic.BaseModel):
     unit: UnitKind = UnitKind.UNKNOWN
 
 
-class ResolutionInfo(pydantic.BaseModel):
+class ResolutionMetadata(pydantic.BaseModel):
     id: int = -1
-    cell_size: AxisValues
-    lattice_shape: AxisValues
+    cell_size: AxisValues = Field(default_factory=AxisValues)
+    lattice_shape: AxisValues = Field(default_factory=AxisValues)
 
 
-class TimeFrameInfo(pydantic.BaseModel):
+class TimeFrameMetadata(pydantic.BaseModel):
     """Metadata related to a single time frame.
 
     Attributes
@@ -72,7 +72,7 @@ class DescriptiveStatistics:
     min: float = 0.0
 
 
-class ChannelInfo(pydantic.BaseModel):
+class ChannelMetadata(pydantic.BaseModel):
     """Metadata related to a single data channel.
 
     Attributes
@@ -87,7 +87,7 @@ class ChannelInfo(pydantic.BaseModel):
     statistics: DescriptiveStatistics = Field(default_factory=DescriptiveStatistics)
 
 
-class MeshInfo(pydantic.BaseModel):
+class MeshMetadata(pydantic.BaseModel):
     """Metadata related to a mesh data.
 
     Attributes

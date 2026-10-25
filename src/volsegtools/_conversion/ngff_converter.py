@@ -4,8 +4,7 @@ import ngff_zarr as nz
 
 from volsegtools._core import AxisValues, DataKind
 from volsegtools._core.axis_values import create_reorder_permutation
-from volsegtools._model import DataSetInfo, PipelineContext
-from volsegtools._model.metadata import ResolutionInfo
+from volsegtools._model import DataSetMetadata, PipelineContext, ResolutionMetadata
 from volsegtools._processing.dask_backend import DaskBackend
 from volsegtools._storage import DataSet
 from volsegtools.abc import Converter
@@ -57,7 +56,7 @@ class NGFFConverter(Converter):
         else:
             dataset_id = input_path.stem
 
-        info = DataSetInfo(
+        info = DataSetMetadata(
             filename=str(input_path),
             axis_order=AxisValues(*order),
             origin=AxisValues(*translation),
@@ -71,7 +70,7 @@ class NGFFConverter(Converter):
         if "c" not in dim_labels:
             array = array[:, None, ...]
 
-        resolution_info = ResolutionInfo(
+        resolution_info = ResolutionMetadata(
             cell_size=AxisValues(*cell_size),
             lattice_shape=AxisValues(*array.shape),
         )
