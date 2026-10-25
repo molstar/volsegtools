@@ -2,7 +2,7 @@ from volsegtools._storage.channel import Channel
 
 
 def calculate_approx_downsampled_sizes(
-    channel: Channel, size_threshold: int, factor: int = 2
+    channel: Channel | int, size_threshold: int, factor: int = 2
 ) -> list[float]:
     """Calculates approximate downsampling sizes.
 
@@ -27,17 +27,18 @@ def calculate_approx_downsampled_sizes(
     if size_threshold <= 0:
         raise RuntimeError("Size threshold has to be bigger than zero")
 
-    bytes_count = channel.handle.nbytes
+    nbytes = channel.handle.nbytes if isinstance(channel, Channel) else channel
+
     sizes = []
-    while bytes_count > size_threshold:
-        bytes_count /= factor**3
-        if bytes_count < size_threshold:
+    while nbytes > size_threshold:
+        nbytes /= factor**3
+        if nbytes < size_threshold:
             break
-        sizes.append(bytes_count)
+        sizes.append(nbytes)
     return sizes
 
 
-def calculate_steps(channel: Channel, size_threshold: int, factor: int = 2) -> int:
+def calculate_steps(channel: Channel | int, size_threshold: int, factor: int = 2) -> int:
     """Calculates the number of downsampling steps.
 
     See: calculate_approx_downsampled_sizes for more info about parameters.
@@ -47,4 +48,5 @@ def calculate_steps(channel: Channel, size_threshold: int, factor: int = 2) -> i
     int
         Number of downsampling steps.
     """
-    return len(calculate_approx_downsampled_sizes(channel, size_threshold, factor))
+    nbytes = channel.handle.nbytes if isinstance(channel, Channel) else channel
+    return len(calculate_approx_downsampled_sizes(nbytes, size_threshold, factor))
