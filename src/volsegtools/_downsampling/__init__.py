@@ -7,7 +7,9 @@ import from the `volsegtools` namespace.
 
 from .common import (
     calculate_approx_downsampled_sizes,
+    calculate_dimensions,
     calculate_steps,
+    calculate_threshold_for_resolution,
 )
 from .continuous_interpolation import (
     InterpolationBased,
@@ -46,5 +48,7 @@ __all__ = [
     "TrilinearInterpolation",
     "TriquinticInterpolation",
     "calculate_approx_downsampled_sizes",
+    "calculate_dimensions",
     "calculate_steps",
+    "calculate_threshold_for_resolution",
 ]

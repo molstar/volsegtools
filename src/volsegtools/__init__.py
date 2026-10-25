@@ -60,7 +60,9 @@ from ._downsampling import (
     TrilinearInterpolation,
     TriquinticInterpolation,
     calculate_approx_downsampled_sizes,
+    calculate_dimensions,
     calculate_steps,
+    calculate_threshold_for_resolution,
 )
 from ._model import (
     ChannelMetadata,
@@ -212,7 +214,9 @@ __all__ = [
     # Namespace Shortcuts
     "abc",
     "calculate_approx_downsampled_sizes",
+    "calculate_dimensions",
     "calculate_steps",
+    "calculate_threshold_for_resolution",
     "create_builder",
     "create_file_name",
     "info_from_file_path",
