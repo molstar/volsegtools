@@ -1,5 +1,6 @@
-import volsegtools as vst
 import pytest
+
+import volsegtools as vst
 
 
 def test_descriptive_statistics_default_values():
@@ -51,12 +52,13 @@ def test_time_frame_metadata():
 # pydantic models, so I am adding tests so that I am sure that I catch early
 # any issues with them.
 
+
 def test_descriptive_stastistics_construction():
     info = vst.DescriptiveStatistics(
-        mean = 1.0,
-        std = 2.0,
-        max = 3.0,
-        min = 4.0,
+        mean=1.0,
+        std=2.0,
+        max=3.0,
+        min=4.0,
     )
     assert info.mean == pytest.approx(1.0)
     assert info.std == pytest.approx(2.0)
@@ -66,13 +68,13 @@ def test_descriptive_stastistics_construction():
 
 def test_channel_metadata_construction():
     info = vst.ChannelMetadata(
-        id = 42,
-        statistics = vst.DescriptiveStatistics(
-            mean = 1.0,
-            std = 2.0,
-            max = 3.0,
-            min = 4.0,
-        )
+        id=42,
+        statistics=vst.DescriptiveStatistics(
+            mean=1.0,
+            std=2.0,
+            max=3.0,
+            min=4.0,
+        ),
     )
     assert info.id == 42
     assert info.statistics.mean == pytest.approx(1.0)
@@ -82,20 +84,20 @@ def test_channel_metadata_construction():
 
 
 def test_mesh_metadata_construction():
-    info = vst.MeshMetadata(id = 42)
+    info = vst.MeshMetadata(id=42)
     assert info.id == 42
 
 
 def test_time_frame_metadata_construction():
-    info = vst.TimeFrameMetadata(id = 42)
+    info = vst.TimeFrameMetadata(id=42)
     assert info.id == 42
 
 
 def test_resolution_metadata_construction():
     info = vst.ResolutionMetadata(
-        id = 42,
-        cell_size = vst.AxisValues(1, 2, 3),
-        lattice_shape = vst.AxisValues(4, 5, 6),
+        id=42,
+        cell_size=vst.AxisValues(1, 2, 3),
+        lattice_shape=vst.AxisValues(4, 5, 6),
     )
     assert info.id == 42
     assert info.cell_size == vst.AxisValues(1, 2, 3)
@@ -104,12 +106,12 @@ def test_resolution_metadata_construction():
 
 def test_dataset_metadata_construction():
     info = vst.DataSetMetadata(
-        id = "Testing",
-        axis_order = vst.AxisValues(0, 1, 2),
-        origin = vst.AxisValues(1, 2, 3),
-        filename = "/path/to/file",
-        kind = vst.DataKind.SEGMENTATION_VOLUME,
-        unit = vst.UnitKind.ANGSTROM,
+        id="Testing",
+        axis_order=vst.AxisValues(0, 1, 2),
+        origin=vst.AxisValues(1, 2, 3),
+        filename="/path/to/file",
+        kind=vst.DataKind.SEGMENTATION_VOLUME,
+        unit=vst.UnitKind.ANGSTROM,
     )
     assert info.id == "Testing"
     assert info.axis_order == vst.AxisValues(0, 1, 2)

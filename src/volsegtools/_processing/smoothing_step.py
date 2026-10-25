@@ -6,7 +6,6 @@ import numpy as np
 import scipy
 
 from volsegtools._core.data_kind import DataKind
-from volsegtools._core.gaussian_kernel import Gaussian3DKernel
 from volsegtools._model.pipeline_state import PipelineContext
 from volsegtools._processing.dask_backend import DaskBackend
 from volsegtools._storage.data_set import DataSet
