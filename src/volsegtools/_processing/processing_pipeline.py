@@ -340,9 +340,10 @@ class ProcessingPipeline(volsegtools.abc.ProcessingPipeline):
                 self._downsampling_strategy.execute(channel, self.context),
                 start=lowest_resolution.metadata.id + 1,
             ):
-                vst_logger.info(f"... downsampled channel %s to %s. resolution",
+                vst_logger.info(
+                    "... downsampled channel %s to %s. resolution",
                     channel.metadata.id,
-                    idx
+                    idx,
                 )
                 lattice_shape = AxisValues(*downsampled_data.shape)
 

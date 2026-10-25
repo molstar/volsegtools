@@ -8,7 +8,6 @@ import from the `volsegtools` namespace.
 """
 
 from .dask_backend import DaskBackend
-from .mesh_backend import MeshBackend
 from .error_evaluation_step import (
     HFEN,
     MAE,
@@ -22,6 +21,7 @@ from .error_evaluation_step import (
     JSONErrorReporter,
     StdoutErrorReporter,
 )
+from .mesh_backend import MeshBackend
 from .numpy_backend import NumPyBackend
 from .processing_pipeline import ProcessingPipeline
 from .processing_pipeline_builder import ProcessingPipelineBuilder, create_builder
