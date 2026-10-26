@@ -8,10 +8,9 @@ import ciftools
 import ciftools.serialization
 import numpy as np
 
-from volsegtools._model.pipeline_state import PipelineContext
+from volsegtools._model import PipelineContext
 from volsegtools._processing import DaskBackend
-from volsegtools._storage import Channel, DataSet
-from volsegtools._storage.data_set import create_file_name
+from volsegtools._storage import Channel, DataSet, create_file_name
 from volsegtools.abc import Serializer
 
 

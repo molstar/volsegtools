@@ -4,8 +4,7 @@ import logging
 
 from volsegtools._model.pipeline_state import PipelineContext
 from volsegtools._processing import MeshBackend
-from volsegtools._storage import DataSet
-from volsegtools._storage.data_set import create_file_name
+from volsegtools._storage import DataSet, create_file_name
 from volsegtools.abc import Serializer
 
 vst_logger = logging.getLogger("volsegtools")

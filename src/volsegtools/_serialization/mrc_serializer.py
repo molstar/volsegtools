@@ -9,7 +9,7 @@ import mrcfile
 
 from volsegtools._model.pipeline_state import PipelineContext
 from volsegtools._processing import DaskBackend
-from volsegtools._storage.data_set import DataSet, create_file_name
+from volsegtools._storage import DataSet, create_file_name
 from volsegtools.abc import Serializer
 
 vst_logger = logging.getLogger("volsegtools")
