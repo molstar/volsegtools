@@ -421,7 +421,7 @@ def run(
                 shutil.rmtree(store_path)
 
     if show_time:
-        pipeline.context.timer.print_report(vst.StandardReporter())
+        pipeline.context.timer.print_report(vst.ConsoleTimerReporter())
     if time_report_path:
         pipeline.context.timer.print_report(
             vst.JSONTimerReporter(
