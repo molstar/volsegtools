@@ -12,7 +12,7 @@ from .computation_backend import ComputationBackend, TData
 from .data_kind import DataKind, SerializableDataKind
 from .gaussian_kernel import Gaussian3DKernel
 from .kernel import ConvolutionKernel
-from .timer import JSONTimerReporter, StandardReporter, Timer, TimerReporter
+from .timer import ConsoleTimerReporter, JSONTimerReporter, Timer, TimerReporter
 from .unit_kind import Unit, UnitKind, to_angstrom, to_micrometer, unit_from_str
 from .working_store import WorkingStore
 
@@ -21,12 +21,12 @@ __all__ = [
     "Bytes",
     "ChunkingMode",
     "ComputationBackend",
+    "ConsoleTimerReporter",
     "ConvolutionKernel",
     "DataKind",
     "Gaussian3DKernel",
     "JSONTimerReporter",
     "SerializableDataKind",
-    "StandardReporter",
     "TData",
     "Timer",
     "TimerReporter",
