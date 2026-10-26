@@ -167,13 +167,13 @@ def run(
             count=True,
         ),
     ] = 0,
-    workdir: Annotated[
-        Path,
+    store_path: Annotated[
+        Path | None,
         typer.Option(
-            help="Path to a directory used for working",
+            help="Path to a directory used as temporary storage",
             file_okay=False,
         ),
-    ] = Path.cwd(),
+    ] = None,
     output_path: Annotated[
         Path,
         typer.Option(
@@ -319,9 +319,8 @@ def run(
     if verbose > 0:
         vst.logger.setLevel(level=logging.INFO)
 
-    local_store_path = workdir / "volsegtools_workdir"
-    if overwrite_tmp and local_store_path.exists():
-        shutil.rmtree(local_store_path)
+    if overwrite_tmp and store_path and store_path.exists():
+        shutil.rmtree(store_path)
 
     vst.logger.info(
         f"Lower size limit for downsampling: {size_limit} bytes"
@@ -359,11 +358,8 @@ def run(
         .set_downsampling_size_threshold(size_limit)
     )
 
-    try:
-        builder.set_work_dir(local_store_path)
-    except RuntimeError as err:
-        report_error(str(err))
-        raise typer.Exit() from None
+    if store_path:
+        builder.set_local_store_path(store_path)
 
     match bundling_approach:
         case BundlingKind.MVXS:
@@ -419,8 +415,8 @@ def run(
         except vst.UnsupportedCompressionError as err:
             report_error(str(err))
         finally:
-            if rm_tmp and local_store_path.exists():
-                shutil.rmtree(local_store_path)
+            if rm_tmp and store_path and store_path.exists():
+                shutil.rmtree(store_path)
 
     if show_time:
         pipeline.context.timer.print_report(vst.StandardReporter())

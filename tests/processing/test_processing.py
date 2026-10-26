@@ -29,7 +29,7 @@ def test_pipeline_throws_if_converter_for_data_kind_not_present(
     converter = MockConverter()
     serializer = MockSerializer()
 
-    (builder.set_serializer(kind, serializer).set_work_dir(Path(tmp_path)))
+    (builder.set_serializer(kind, serializer).set_local_store_path(Path(tmp_path)))
 
     if kind.is_segmentation():
         builder.add_segmentation_converter(converter)
@@ -56,7 +56,7 @@ def test_converter_is_called_once_per_file(tmp_path):
         builder.add_volume_converter(volume_converter)
         .add_segmentation_converter(segmentation_converter)
         .set_serializer(vst.DataKind.VOLUME, serializer)
-        .set_work_dir(Path(tmp_path))
+        .set_local_store_path(Path(tmp_path))
     )
 
     pipeline = builder.build()
@@ -82,7 +82,7 @@ def test_processing_step_is_called(tmp_path):
         builder.add_volume_converter(converter)
         .add_post_process_step(processing_step)
         .set_serializer(vst.DataKind.VOLUME, serializer)
-        .set_work_dir(Path(tmp_path))
+        .set_local_store_path(Path(tmp_path))
     )
 
     pipeline = builder.build()

@@ -1,6 +1,8 @@
 from pathlib import Path
 from typing import Self
 
+import logging
+
 from volsegtools._conversion.converter_map import ConverterMap
 from volsegtools._core import Bytes, DataKind
 from volsegtools._downsampling.null import Null
@@ -14,12 +16,16 @@ from volsegtools.abc import (
     Serializer,
 )
 
+vst_logger = logging.getLogger("volsegtools")
+
 
 class ProcessingPipelineBuilder:
     """Allows fine-grained specification of the preprocessor."""
 
+    DEFAULT_LOCAL_STORE_PATH = Path(".vst_work_dir")
+
     def __init__(self) -> None:
-        self._work_dir: Path | None = None
+        self._local_store_path: Path | None = None
         self._output_dir: Path | None = None
         self._downsampling_strategy: DownsamplingStrategy = Null()
         self._post_processing_steps: list[PostProcessingStep] = []
@@ -255,8 +261,14 @@ class ProcessingPipelineBuilder:
         self._serializer_map[kind] = serializer
         return self
 
-    def set_work_dir(self, file_path: Path) -> Self:
-        """Sets the working directory of the processor.
+    def use_local_store(self) -> Self:
+        """Use the default working store unless it is already set."""
+        if self._local_store_path is None:
+            self._local_store_path = self.DEFAULT_LOCAL_STORE_PATH
+        return self
+
+    def set_local_store_path(self, store_path: Path) -> Self:
+        """Sets the path used for the local working store.
 
         This directory is going to be used for storing intermediate file,
         namely zarr archive.
@@ -264,7 +276,8 @@ class ProcessingPipelineBuilder:
         Parameters
         ----------
         file_path
-            Path to the working directory.
+            Directory where the local working store is created. If it already
+            exists it is going to be used instead.
 
         Raises
         ------
@@ -276,10 +289,13 @@ class ProcessingPipelineBuilder:
         Self
             Reference to this builder.
         """
-        if not file_path.is_dir:
+        if not store_path.is_dir:
             raise RuntimeError("Output directory has to be a directory!")
 
-        self._work_dir = file_path
+        if store_path.exists():
+            vst_logger.warning(f"Working store '{store_path.resolve()}' already exists!")
+
+        self._local_store_path = store_path
         return self
 
     def keep_original(self, value: bool = True) -> Self:
@@ -390,7 +406,7 @@ class ProcessingPipelineBuilder:
                 DataKind.SEGMENTATION_MESH
             ),
             bundler=self._bundler,
-            work_dir=self._work_dir,
+            local_store_path=self._local_store_path,
             output_dir=self._output_dir,
             keep_original=self._keep_original,
             size_threshold=self._threshold,

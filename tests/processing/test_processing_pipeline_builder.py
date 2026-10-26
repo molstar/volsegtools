@@ -1,29 +1,11 @@
-from pathlib import Path
-
 import itertools
 
+from tests.mocks import MockConverter, MockSerializer
+
 import pytest
+import zarr.storage
 
 import volsegtools as vst
-
-
-class MockConverter(vst.abc.Converter):
-    async def convert_volume(self, input_path, context):
-        return []
-
-    async def convert_segmentation(self, input_path, context):
-        return []
-
-    async def collect_metadata(self, input_path, context):
-        return []
-
-    async def collect_annotations(self, input_path, context):
-        return []
-
-
-class MockSerializer(vst.abc.Serializer):
-    async def serialize(self, data_set, output_path, context):
-        return []
 
 
 def generate_data_kind_permutations():
@@ -49,8 +31,76 @@ def generate_data_kind_permutations():
 )
 def test_valid_construction_with_serializer(data_kinds):
     builder = vst.ProcessingPipelineBuilder()
+    builder.add_volume_converter(MockConverter())
     for kind in data_kinds:
         builder.set_serializer(kind, MockSerializer())
-    builder.set_work_dir(Path("unused"))
 
     builder.build()
+
+
+# Working store related tests
+
+
+def test_default_building_should_use_memory_store(valid_builder):
+    pipeline = valid_builder.build()
+    assert isinstance(pipeline.working_store.data_store, zarr.storage.MemoryStore)
+
+
+def test_using_default_local_store(valid_builder, tmp_path, monkeypatch):
+    monkeypatch.chdir(tmp_path)
+    valid_builder.use_local_store()
+
+    expected_path = vst.ProcessingPipelineBuilder.DEFAULT_LOCAL_STORE_PATH
+
+    assert not expected_path.exists()
+    valid_builder.build()
+    assert expected_path.exists()
+
+
+def test_explicit_store_path_definition(valid_builder, tmp_path):
+    local_store_path = tmp_path / "testing_working_store"
+
+    valid_builder.set_local_store_path(local_store_path)
+
+    assert not local_store_path.exists()
+
+    valid_builder.build()
+
+    assert local_store_path.is_dir()
+
+
+def test_set_use_local_store_should_not_override_set_path(
+    valid_builder, tmp_path, monkeypatch
+):
+    # We have to be located in temporary testing directory, otherwise it would
+    # change the test outcome.
+    monkeypatch.chdir(tmp_path)
+
+    local_store_path = tmp_path / "testing_working_store"
+
+    valid_builder.set_local_store_path(local_store_path)
+
+    assert not local_store_path.exists()
+
+    valid_builder.use_local_store()
+    valid_builder.build()
+
+    assert local_store_path.exists()
+    assert not vst.ProcessingPipelineBuilder.DEFAULT_LOCAL_STORE_PATH.exists()
+
+
+def test_explicit_store_path_should_override_default(
+    valid_builder, tmp_path, monkeypatch
+):
+    # We have to be located in temporary testing directory, otherwise it would
+    # change the test outcome.
+    monkeypatch.chdir(tmp_path)
+
+    local_store_path = tmp_path / "testing_working_store"
+
+    valid_builder.use_local_store()
+    valid_builder.set_local_store_path(local_store_path)
+    valid_builder.build()
+
+    assert local_store_path.exists()
+    assert not vst.ProcessingPipelineBuilder.DEFAULT_LOCAL_STORE_PATH.exists()
