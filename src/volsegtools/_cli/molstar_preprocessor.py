@@ -316,8 +316,10 @@ def run(
     console = rich.console.Console()
 
     vst.logger.addHandler(rich.logging.RichHandler(console=console, show_time=False))
-    if verbose > 0:
+    if verbose == 1:
         vst.logger.setLevel(level=logging.INFO)
+    elif verbose > 1:
+        vst.logger.setLevel(level=logging.DEBUG)
 
     if overwrite_tmp and store_path and store_path.exists():
         shutil.rmtree(store_path)
