@@ -22,7 +22,7 @@ from collections.abc import Callable, Sequence
 from pathlib import Path
 from typing import Protocol, cast
 
-import datetime
+import datetime as dt
 import enum
 import json
 import logging
@@ -529,7 +529,7 @@ class ErrorEvaluationStep(PostProcessingStep):
             resolution=channel.resolution.metadata.id,
             kind=dataset.metadata.kind,
             channel_id=channel.metadata.id,
-            timestamp=str(datetime.datetime.now()),
+            timestamp=str(dt.datetime.now()),
             label=self.label,
             error_method=error_method_name,
             error=0.0,
