@@ -310,38 +310,40 @@ class Timer:
         reporter.report(self.serialize(True))
 
 
-class StandardReporter(TimerReporter):
+class ConsoleTimerReporter(TimerReporter):
     """Reporter to the stdout."""
 
     STAGE_FMT = "({:6.3f}%) Stage: '{}' ({:0.3f}s / {:0.3f}s / {:0.3f}s)"
     EVENT_FMT = "({:6.3f}% / {:6.3f}%) Event: '{}' ({:0.3f}s / {:0.3f}s / {:0.3f}s)"
 
-    #TODO: finish docstring
-
-    def _to_percent(self, part: float, total: float) -> float:
-        """Calculates the percentage.
+    @staticmethod
+    def _to_percent(part: float, total: float) -> float:
+        """Calculates what percentage part is of total.
 
         Parameters
         ----------
         part
-            ...
+            The portion of the total, must satisfy ``0 <= part <= total``.
         total
-            ...
+            The whole amount. If it is zero, the percentage is defined as 0.
 
         Raises
         ------
-        RuntimeError:
-            if part is bigger than total.
+        ValueError
+            If part is negative or bigger than total.
 
         Returns
         -------
         float
             The percentage in the interval <0, 1.0>.
         """
-        step = total / 100.0
-        if math.isclose(step, 0):
+        if math.isclose(total, 0):
             return 0.0
-        return part / step
+
+        if not 0 <= part <= total:
+            raise ValueError(f"part ({part}) must be in the interval <0, {total}>")
+
+        return part / total * 100.0
 
     def report(self, timer_data) -> None:
         total_time = timer_data["total_time"]
@@ -362,7 +364,7 @@ class StandardReporter(TimerReporter):
     def _report_stage(self, stage, total, cummulative_total):
         print(
             self.STAGE_FMT.format(
-                self._to_percent(stage["time"], total),
+                ConsoleTimerReporter._to_percent(stage["time"], total),
                 stage["name"],
                 stage["time"],
                 cummulative_total,
@@ -378,8 +380,8 @@ class StandardReporter(TimerReporter):
         fmt_str = self.EVENT_FMT if not orhan else "- " + self.EVENT_FMT
         print(
             fmt_str.format(
-                self._to_percent(event["time"], total),
-                self._to_percent(event["time"], total_stage),
+                ConsoleTimerReporter._to_percent(event["time"], total),
+                ConsoleTimerReporter._to_percent(event["time"], total_stage),
                 event["name"],
                 event["time"],
                 cummulative,

@@ -2,6 +2,8 @@ from pathlib import Path
 
 import json
 
+import pytest
+
 import volsegtools as vst
 
 
@@ -11,7 +13,7 @@ def test_standard_reporter(capsys):
     timer.push_event("test_event")
     timer.pop_event()
     timer.pop_stage()
-    timer.print_report(vst.StandardReporter())
+    timer.print_report(vst.ConsoleTimerReporter())
     out, _ = capsys.readouterr()
 
     expected = (
@@ -23,6 +25,26 @@ def test_standard_reporter(capsys):
     )
 
     assert out == expected
+
+
+@pytest.mark.parametrize(
+    ("part", "total", "expected"),
+    [
+        (0, 10, 0.0),
+        (5, 10, 50.0),
+        (10, 10, 100.0),
+        (1, 3, 33.333333),
+        (0, 0, 0.0),
+    ],
+)
+def test_to_percent(part, total, expected):
+    assert vst.ConsoleTimerReporter._to_percent(part, total) == pytest.approx(expected)
+
+
+@pytest.mark.parametrize(("part", "total"), [(11, 10), (-1, 10)])
+def test_to_percent_invalid_part_raises(part, total):
+    with pytest.raises(ValueError):
+        vst.ConsoleTimerReporter._to_percent(part, total)
 
 
 def test_json_reporter(tmp_path):
