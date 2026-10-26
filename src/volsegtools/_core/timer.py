@@ -1,7 +1,7 @@
 from pathlib import Path
 from typing import Any, Protocol
 
-import datetime
+import datetime as dt
 import json
 import logging
 import math
@@ -395,7 +395,7 @@ class JSONTimerReporter(TimerReporter):
         self.label = label
         self.output_path = output_path
         self.uuid = uuid.uuid1()
-        self.time = datetime.datetime.now()
+        self.time = dt.datetime.now()
         self.additional_columns = kwargs
 
     def _create_record(self, kind, text, total_time, stage=-1):
