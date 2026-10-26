@@ -38,10 +38,7 @@ class DataSet:
 
     @property
     def zarr_path(self) -> Path:
-        if self.metadata.kind.is_segmentation():
-            root = Path("segmentation_data")
-        else:
-            root = Path("volume_data")
+        root = Path(self.store.get_data_group(self.metadata.kind).path)
         return root / self.metadata.id
 
     def flat_channel_iter(self) -> Iterator[Channel]:

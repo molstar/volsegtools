@@ -1,82 +1,53 @@
 from pathlib import Path
 
-import numpy as np
+import logging
+
 import zarr
 import zarr.storage
 
-from volsegtools._core.chunking_mode import ChunkingMode
 from volsegtools._core.data_kind import DataKind
 
+vst_logger = logging.getLogger("volsegtools")
 
-# TODO: Rename to 'Workspace'
-# TODO: There is huge chance, that we do not need this...
+
 class WorkingStore:
-    def __init__(self, store_path: Path):
-        self.data_store = zarr.storage.LocalStore(root=store_path)
+    """Provides a temporary zarr storage for volume and segmentation data."""
+
+    def __init__(self, store_path: Path | None = None):
+        if store_path:
+            vst_logger.debug(f"Creating a local store at: {store_path}")
+            self.data_store = zarr.storage.LocalStore(root=store_path)
+        else:
+            self.data_store = zarr.storage.MemoryStore()
+            vst_logger.debug(f"Creating a memory store as: {self.data_store}")
+
         self.root_group = zarr.open_group(store=self.data_store, mode="a")
 
-        self.volume_dtype = np.float64
-        self.is_volume_dtype_set = False
-
-        self.segmentation_dtype = np.float64
-        self.is_segmentation_dtype_set = False
-
-        self._volume_data_group = self.root_group.require_group("volume_data")
-        self._segmentation_data_group = self.root_group.require_group("segmentation_data")
+    @property
+    def volume_data_group(self) -> zarr.Group:
+        """Returns the zarr group holding the volume data."""
+        return self.root_group.require_group("volume_data")
 
     @property
-    def metadata(self):
-        return self._metadata
+    def segmentation_data_group(self) -> zarr.Group:
+        """Returns the zarr group holding the segmentation data."""
+        return self.root_group.require_group("segmentation_data")
 
-    @metadata.setter
-    def metadata(self, value):
-        self._metadata = value
+    def get_data_group(self, lattice_kind: DataKind) -> zarr.Group:
+        """Return the zarr group associated with a data kind.
 
-    @property
-    def volume_data_group(self):
-        return self._volume_data_group
+        Parameters
+        ----------
+        lattice_kind : DataKind
+            Kind of data for which the group should be returned.
 
-    @property
-    def segmentation_data_group(self):
-        return self._segmentation_data_group
+        Returns
+        -------
+        zarr.Group
+            ``volume_data_group`` for volume data and
+            ``segmentation_data_group`` for every segmentation kind.
+        """
 
-    def get_data_array(
-        self, lattice_id, resolution, time_frame, channel, kind=DataKind.VOLUME
-    ):
-        kind_group = self.get_data_group(kind)
-        lattice_group = kind_group.require_group(lattice_id)
-        resolution_group: zarr.Group = lattice_group.require_group(
-            f"resolution_{resolution}"
-        )
-        time_frame_group: zarr.Group = resolution_group.require_group(
-            f"time_frame_{time_frame}"
-        )
-        # FIX: this is unsafe, there should be some check!
-        return list(time_frame_group.arrays())[channel][1][:]
-
-    @staticmethod
-    def _compute_chunk_size_based_on_data(
-        data_shape: tuple[int, ...],
-    ) -> tuple[int, ...]:
-        return tuple([int(i / 4) if i > 4 else i for i in data_shape])
-
-    @staticmethod
-    def _resolve_chunking_method(mode: ChunkingMode, data_shape: tuple[int, ...]):
-        match mode:
-            case ChunkingMode.AUTO:
-                return "auto"
-            case ChunkingMode.NONE:
-                return (0, 0)
-            case ChunkingMode.CUSTOM:
-                return WorkingStore._compute_chunk_size_based_on_data(data_shape)
-            case _:
-                raise RuntimeError("Unsupported chunking method!")
-
-    def get_data_group(self, lattice_kind: DataKind):
-        match lattice_kind:
-            case DataKind.VOLUME:
-                return self.volume_data_group
-            case DataKind.SEGMENTATION_VOLUME:
-                return self.segmentation_data_group
-            case _:
-                raise RuntimeError("Unknown lattice kind encountered.")
+        if lattice_kind.is_volume():
+            return self.volume_data_group
+        return self.segmentation_data_group

@@ -54,7 +54,6 @@ class ProcessingPipeline(volsegtools.abc.ProcessingPipeline):
 
     """
 
-    DEFAULT_WORK_DIR = Path(".vst_work_dir")
     DEFAULT_SIZE_THRESHOLD = Bytes("5MiB")
 
     # It is safe to ignore the B008 error here, because the Null downsampling
@@ -72,7 +71,7 @@ class ProcessingPipeline(volsegtools.abc.ProcessingPipeline):
         post_processing_steps: list[PostProcessingStep] | None = None,
         post_conversion_steps: list[PostConversionStep] | None = None,
         bundler: Bundler | None = None,
-        work_dir: Path | None = None,
+        local_store_path: Path | None = None,
         output_dir: Path | None = None,
         keep_original: bool = False,
         size_threshold: Bytes = DEFAULT_SIZE_THRESHOLD,
@@ -96,11 +95,7 @@ class ProcessingPipeline(volsegtools.abc.ProcessingPipeline):
             DataKind.SEGMENTATION_MESH: segmentation_mesh_serializer,
         }
 
-        if work_dir is None:
-            self._work_dir = ProcessingPipeline.DEFAULT_WORK_DIR
-        else:
-            self._work_dir = work_dir
-        self.working_store = WorkingStore(self._work_dir)
+        self.working_store = WorkingStore(local_store_path)
 
         self._post_processing_steps = post_processing_steps
         self._post_conversion_steps = post_conversion_steps
