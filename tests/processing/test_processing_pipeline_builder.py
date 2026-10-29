@@ -33,9 +33,29 @@ def test_valid_construction_with_serializer(data_kinds):
     builder = vst.ProcessingPipelineBuilder()
     builder.add_volume_converter(MockConverter())
     for kind in data_kinds:
-        builder.set_serializer(kind, MockSerializer())
+        builder.set_serializer(MockSerializer(), kind)
 
-    builder.build()
+    pipeline = builder.build()
+    for kind in data_kinds:
+        assert isinstance(pipeline._serializer_map[kind], MockSerializer)
+
+
+# Downsampler Setting
+
+
+@pytest.mark.parametrize(
+    "data_kinds",
+    [*generate_data_kind_permutations()],
+    ids=lambda x: f"data_kinds={x}",
+)
+def test_it_is_possible_to_set_strategy_for_data_kind(valid_builder, data_kinds):
+    for kind in data_kinds:
+        valid_builder.set_downsampling_strategy(vst.NearestNeighbor(), kind)
+
+    pipeline = valid_builder.build()
+
+    for kind in data_kinds:
+        assert isinstance(pipeline._downsampler_map[kind], vst.NearestNeighbor)
 
 
 # Working store related tests

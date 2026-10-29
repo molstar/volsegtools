@@ -31,6 +31,7 @@ class ProcessingPipelineBuilder:
         self._post_processing_steps: list[PostProcessingStep] = []
         self._post_conversion_steps: list[PostConversionStep] = []
         self._serializer_map: dict[DataKind, Serializer] = {}
+        self._downsampler_map: dict[DataKind, DownsamplingStrategy] = {}
         self._volume_converter_map = ConverterMap()
         self._segmentation_converter_map = ConverterMap()
         self._bundler = None
@@ -152,7 +153,9 @@ class ProcessingPipelineBuilder:
         self._volume_converter_map.map_converter(converter, extension)
         return self
 
-    def set_downsampling_strategy(self, strategy: DownsamplingStrategy) -> Self:
+    def set_downsampling_strategy(
+        self, strategy: DownsamplingStrategy, kind: DataKind | None = None
+    ) -> Self:
         """Sets a downsampler that is going to be used by the resulting
         preprocessor.
 
@@ -171,7 +174,12 @@ class ProcessingPipelineBuilder:
         Self
             Reference to this builder.
         """
-        self._downsampling_strategy = strategy
+        if kind is None:
+            for k in DataKind:
+                if k not in self._serializer_map:
+                    self._downsampler_map[k] = strategy
+        else:
+            self._downsampler_map[kind] = strategy
         return self
 
     def add_post_conversion_step(self, step: PostConversionStep) -> Self:
@@ -236,7 +244,9 @@ class ProcessingPipelineBuilder:
         self._bundler = bundler
         return self
 
-    def set_serializer(self, kind: DataKind, serializer: Serializer) -> Self:
+    def set_serializer(
+        self, serializer: Serializer, kind: DataKind | None = None
+    ) -> Self:
         """Set the serializer for a data kind that should be used by the
         pipeline.
 
@@ -248,17 +258,22 @@ class ProcessingPipelineBuilder:
 
         Parameters
         ----------
-        kind
-            The kind of the data for which we are setting the serializer.
         serializer
             The serializer that the pipeline should used for give data kind.
+        kind: optional
+            The kind of the data for which we are setting the serializer.
 
         Returns
         -------
         Self
             Reference to this builder.
         """
-        self._serializer_map[kind] = serializer
+        if kind is None:
+            for k in DataKind:
+                if k not in self._serializer_map:
+                    self._serializer_map[k] = serializer
+        else:
+            self._serializer_map[kind] = serializer
         return self
 
     def use_local_store(self) -> Self:
@@ -390,21 +405,22 @@ class ProcessingPipelineBuilder:
             raise RuntimeError("Atleast one serializer must set")
 
         return ProcessingPipeline(
-            downsampling_strategy=self._downsampling_strategy,
             volume_converter_map=self._volume_converter_map,
             segmentation_converter_map=self._segmentation_converter_map,
             post_processing_steps=self._post_processing_steps,
             post_conversion_steps=self._post_conversion_steps,
-            volume_serializer=self._serializer_map.get(DataKind.VOLUME),
-            segmentation_mask_serializer=self._serializer_map.get(
-                DataKind.SEGMENTATION_MASK
-            ),
-            segmentation_volume_serializer=self._serializer_map.get(
+            volume_downsampler=self._downsampler_map.get(DataKind.VOLUME),
+            mask_downsampler=self._downsampler_map.get(DataKind.SEGMENTATION_MASK),
+            segmentation_downsampler=self._downsampler_map.get(
                 DataKind.SEGMENTATION_VOLUME
             ),
-            segmentation_mesh_serializer=self._serializer_map.get(
-                DataKind.SEGMENTATION_MESH
+            mesh_downsampler=self._downsampler_map.get(DataKind.SEGMENTATION_MESH),
+            volume_serializer=self._serializer_map.get(DataKind.VOLUME),
+            mask_serializer=self._serializer_map.get(DataKind.SEGMENTATION_MASK),
+            segmentation_serializer=self._serializer_map.get(
+                DataKind.SEGMENTATION_VOLUME
             ),
+            mesh_serializer=self._serializer_map.get(DataKind.SEGMENTATION_MESH),
             bundler=self._bundler,
             local_store_path=self._local_store_path,
             output_dir=self._output_dir,

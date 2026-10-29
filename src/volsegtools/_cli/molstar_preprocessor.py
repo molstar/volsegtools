@@ -345,15 +345,15 @@ def run(
         .add_segmentation_converter(vst.VRMLConverter())
         .add_segmentation_converter(vst.CIFConverter())
         .set_downsampling_strategy(get_downsampling_strategy(strategy))
-        .set_serializer(DataKind.VOLUME, get_serializer(volume_serializer))
+        .set_serializer(get_serializer(volume_serializer), DataKind.VOLUME)
         .set_serializer(
-            DataKind.SEGMENTATION_MASK, get_serializer(segmentation_mask_serializer)
+            get_serializer(segmentation_mask_serializer), DataKind.SEGMENTATION_MASK
         )
         .set_serializer(
-            DataKind.SEGMENTATION_VOLUME, get_serializer(segmentation_volume_serializer)
+            get_serializer(segmentation_volume_serializer), DataKind.SEGMENTATION_VOLUME
         )
         .set_serializer(
-            DataKind.SEGMENTATION_MESH, get_serializer(segmentation_mesh_serializer)
+            get_serializer(segmentation_mesh_serializer), DataKind.SEGMENTATION_MESH
         )
         .set_output_dir(output_path)
         .keep_original(keep_original)
