@@ -61,13 +61,16 @@ class ProcessingPipeline(volsegtools.abc.ProcessingPipeline):
     # instances.
     def __init__(
         self,
-        downsampling_strategy: DownsamplingStrategy | None = Null(),  # noqa: B008
         volume_converter_map: ConverterMap | None = None,
         segmentation_converter_map: ConverterMap | None = None,
+        volume_downsampler: DownsamplingStrategy | None = Null(),  # noqa: B008
+        mask_downsampler: DownsamplingStrategy | None = Null(),  # noqa: B008
+        segmentation_downsampler: DownsamplingStrategy | None = Null(),  # noqa: B008
+        mesh_downsampler: DownsamplingStrategy | None = Null(),  # noqa: B008
         volume_serializer: Serializer | None = None,
-        segmentation_mask_serializer: Serializer | None = None,
-        segmentation_volume_serializer: Serializer | None = None,
-        segmentation_mesh_serializer: Serializer | None = None,
+        mask_serializer: Serializer | None = None,
+        segmentation_serializer: Serializer | None = None,
+        mesh_serializer: Serializer | None = None,
         post_processing_steps: list[PostProcessingStep] | None = None,
         post_conversion_steps: list[PostConversionStep] | None = None,
         bundler: Bundler | None = None,
@@ -76,12 +79,15 @@ class ProcessingPipeline(volsegtools.abc.ProcessingPipeline):
         keep_original: bool = False,
         size_threshold: Bytes = DEFAULT_SIZE_THRESHOLD,
     ):
-        # The conversion and bundling are required stages
-        if post_conversion_steps is None:
-            post_conversion_steps = []
-        if post_processing_steps is None:
-            post_processing_steps = []
-        self._downsampling_strategy = downsampling_strategy
+        post_conversion_steps = post_conversion_steps or []
+        post_processing_steps = post_processing_steps or []
+
+        self._downsampler_map = {
+            DataKind.VOLUME: volume_downsampler,
+            DataKind.SEGMENTATION_MASK: mask_downsampler,
+            DataKind.SEGMENTATION_VOLUME: segmentation_downsampler,
+            DataKind.SEGMENTATION_MESH: mesh_downsampler,
+        }
 
         self._volume_converter_map = volume_converter_map
         self._segmentation_converter_map = segmentation_converter_map
@@ -90,9 +96,9 @@ class ProcessingPipeline(volsegtools.abc.ProcessingPipeline):
 
         self._serializer_map = {
             DataKind.VOLUME: volume_serializer,
-            DataKind.SEGMENTATION_MASK: segmentation_mask_serializer,
-            DataKind.SEGMENTATION_VOLUME: segmentation_volume_serializer,
-            DataKind.SEGMENTATION_MESH: segmentation_mesh_serializer,
+            DataKind.SEGMENTATION_MASK: mask_serializer,
+            DataKind.SEGMENTATION_VOLUME: segmentation_serializer,
+            DataKind.SEGMENTATION_MESH: mesh_serializer,
         }
 
         self.working_store = WorkingStore(local_store_path)
@@ -317,8 +323,12 @@ class ProcessingPipeline(volsegtools.abc.ProcessingPipeline):
 
     @pipeline_stage("Downsampling")
     async def downsample(self, dataset: DataSet) -> DataSet:
-        if self._downsampling_strategy is None:
-            raise RuntimeError("There is not downsampling strategy to use")
+        downsampler = self._downsampler_map.get(dataset.metadata.kind)
+
+        if downsampler is None:
+            msg = f"There is no downsampler for '{dataset.metadata.kind}'."
+            vst_logger.error(msg)
+            raise RuntimeError(msg)
 
         self.state.update(msg=f"Downsampling '{dataset.metadata.id}'")
 
@@ -332,7 +342,7 @@ class ProcessingPipeline(volsegtools.abc.ProcessingPipeline):
         for channel in lowest_resolution.flat_channel_iter():
             frame = channel.time_frame
             for idx, downsampled_data in enumerate(
-                self._downsampling_strategy.execute(channel, self.context),
+                downsampler.execute(channel, self.context),
                 start=lowest_resolution.metadata.id + 1,
             ):
                 vst_logger.info(
@@ -375,6 +385,7 @@ class ProcessingPipeline(volsegtools.abc.ProcessingPipeline):
     async def serialize(self, dataset: DataSet) -> list[Path]:
         kind = dataset.metadata.kind
 
+        print(self._serializer_map)
         serializer = self._serializer_map[kind]
         if serializer is None:
             raise RuntimeError(f"Could not find serializer for '{kind}'")
