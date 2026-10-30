@@ -40,21 +40,15 @@ def _flatten[T](list_of_lists: list[list[T]]) -> list[T]:
 
 
 class ProcessingPipeline(volsegtools.abc.ProcessingPipeline):
-    """Processing pipeline for downsampling or conversion.
-
-    Attributes
-    ----------
-    DEFAULT_WORK_DIR
-
-    DEFAULT_SIZE_THRESHOLD
-
-    working_store
-
-    state
-
-    """
+    """Processing pipeline for downsampling or conversion."""
 
     DEFAULT_SIZE_THRESHOLD = Bytes("5MiB")
+    """
+    Default threshold for accepting new resolution.
+
+    Everything smaller than this limit is going to be discarted and every
+    well-defined downsampling method should stop generating new resolutions.
+    """
 
     # It is safe to ignore the B008 error here, because the Null downsampling
     # strategy does not contain any state. Thus, it is safe to share it between

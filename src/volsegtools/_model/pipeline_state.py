@@ -29,18 +29,16 @@ class PipelineStageKind(enum.StrEnum):
 
 @pydantic.dataclasses.dataclass()
 class PipelineState:
-    """Dataclass for holding the pipeline's state.
+    """Dataclass for holding the pipeline's state."""
 
-    Attributes
-    ----------
     stage: PipelineStageKind
-        Current stage of the pipeline.
-    msg: str, optional
-        Optional message associated with the current stage.
     """
-
-    stage: PipelineStageKind
+    Current stage of the pipeline.
+    """
     msg: str | None
+    """
+    Optional message associated with the current stage.
+    """
 
 
 class PipelineStateManager:
@@ -108,23 +106,25 @@ class PipelineContext:
     """Context of the pipeline that should be accessible in each stage.
 
     It is required to make runs of different pipeline's independent.
-
-    Attributes
-    ----------
-    timer
-        Pipeline's timer.
-    working_store
-        Current working store.
-    output_dir
-        Output directory associated with this pipeline.
-    state
-        Current pipeline state manager.
-    size_threhold
-        Size threshold that is accepted by this pipeline.
     """
 
     timer: Timer
+    """
+    Pipeline's timer.
+    """
     working_store: WorkingStore
+    """
+    Current working store.
+    """
     output_dir: Path
+    """
+    Output directory associated with this pipeline.
+    """
     state: PipelineStateManager
+    """
+    Current pipeline state manager.
+    """
     size_threshold: Bytes
+    """
+    Size threshold that is accepted by this pipeline.
+    """
