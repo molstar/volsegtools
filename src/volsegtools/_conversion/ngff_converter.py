@@ -65,16 +65,16 @@ class NGFFConverter(Converter):
         )
         dataset = DataSet(context.working_store, info)
 
-        if "t" not in dim_labels:
-            array = array[None, ...]
-        if "c" not in dim_labels:
-            array = array[:, None, ...]
-
         resolution_info = ResolutionMetadata(
             cell_size=AxisValues(*cell_size),
             lattice_shape=AxisValues(*array.shape),
         )
         resolution = dataset.add_resolution(resolution_info)
+
+        if "t" not in dim_labels:
+            array = array[None, ...]
+        if "c" not in dim_labels:
+            array = array[:, None, ...]
 
         for frame_data in array:
             frame = resolution.add_time_frame()
