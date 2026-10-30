@@ -19,8 +19,10 @@ from .error_evaluation_step import (
     ConsoleErrorReporter,
     ErrorEvaluationStep,
     ErrorFunction,
+    ErrorRecord,
+    ErrorReporter,
     JSONErrorReporter,
-    StdoutErrorReporter,
+    UpsamplingQualityLevel,
 )
 from .mesh_backend import MeshBackend
 from .numpy_backend import NumPyBackend
@@ -30,7 +32,7 @@ from .size_evaluation_step import (
     ConsoleSizeReporter,
     JSONSizeReporter,
     SizeEvaluationStep,
-    StdoutSizeReporter,
+    SizeReporter,
 )
 from .smoothing_step import SmoothingStep
 
@@ -47,6 +49,8 @@ __all__ = [
     "DaskBackend",
     "ErrorEvaluationStep",
     "ErrorFunction",
+    "ErrorRecord",
+    "ErrorReporter",
     "JSONErrorReporter",
     "JSONSizeReporter",
     "MeshBackend",
@@ -54,8 +58,8 @@ __all__ = [
     "ProcessingPipeline",
     "ProcessingPipelineBuilder",
     "SizeEvaluationStep",
+    "SizeReporter",
     "SmoothingStep",
-    "StdoutErrorReporter",
-    "StdoutSizeReporter",
+    "UpsamplingQualityLevel",
     "create_builder",
 ]

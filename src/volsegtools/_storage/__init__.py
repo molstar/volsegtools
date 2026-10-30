@@ -6,7 +6,7 @@ import from the `volsegtools` namespace.
 """
 
 from .channel import Channel
-from .common import create_file_name, info_from_file_path
+from .common import FileNameInfo, create_file_name, info_from_file_path
 from .data_handle import DataHandle
 from .data_set import DataSet
 from .mesh import Mesh
@@ -17,6 +17,7 @@ __all__ = [
     "Channel",
     "DataHandle",
     "DataSet",
+    "FileNameInfo",
     "Mesh",
     "Resolution",
     "TimeFrame",

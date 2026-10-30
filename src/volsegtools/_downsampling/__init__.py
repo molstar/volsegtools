@@ -13,6 +13,7 @@ from .common import (
 )
 from .continuous_interpolation import (
     InterpolationBased,
+    SplineOrder,
     TricubicInterpolation,
     TrilinearInterpolation,
     TriquinticInterpolation,
@@ -43,6 +44,7 @@ __all__ = [
     "PoolingDownsamplingStrategy",
     "SeparatedSmoothing",
     "Smoothing",
+    "SplineOrder",
     "StridedSmoothing",
     "TricubicInterpolation",
     "TrilinearInterpolation",
