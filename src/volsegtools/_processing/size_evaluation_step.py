@@ -16,7 +16,7 @@ class SizeReporter(Protocol):
     def report(self, channel, size_in_bytes, label): ...
 
 
-class StdoutSizeReporter(SizeReporter):
+class ConsoleSizeReporter(SizeReporter):
     FLOAT_PRECISION_PADDING = 5
     DOT_CHARACTER_PADDING = 1
 
@@ -82,7 +82,7 @@ class SizeEvaluationStep(PostProcessingStep):
     # not contain any state. Thus, the instance can be shared between calls.
     def __init__(
         self,
-        reporter: SizeReporter = StdoutSizeReporter(),  # noqa: B008
+        reporter: SizeReporter = ConsoleSizeReporter(),  # noqa: B008
         label: str = "",
     ):
         self.reporter = reporter

@@ -16,6 +16,7 @@ from .error_evaluation_step import (
     RMSE,
     SSIM,
     VFM,
+    ConsoleErrorReporter,
     ErrorEvaluationStep,
     ErrorFunction,
     JSONErrorReporter,
@@ -26,6 +27,7 @@ from .numpy_backend import NumPyBackend
 from .processing_pipeline import ProcessingPipeline
 from .processing_pipeline_builder import ProcessingPipelineBuilder, create_builder
 from .size_evaluation_step import (
+    ConsoleSizeReporter,
     JSONSizeReporter,
     SizeEvaluationStep,
     StdoutSizeReporter,
@@ -40,6 +42,8 @@ __all__ = [
     "RMSE",
     "SSIM",
     "VFM",
+    "ConsoleErrorReporter",
+    "ConsoleSizeReporter",
     "DaskBackend",
     "ErrorEvaluationStep",
     "ErrorFunction",

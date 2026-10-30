@@ -176,7 +176,7 @@ class ErrorReporter(Protocol):
     def report(self, records: Sequence[ErrorRecord]) -> None: ...
 
 
-class StdoutErrorReporter:
+class ConsoleErrorReporter:
     def report(self, records: Sequence[ErrorRecord]) -> None:
         serialized = [record.model_dump(mode="json") for record in records]
 
@@ -416,7 +416,7 @@ class ErrorEvaluationStep(PostProcessingStep):
 
         self.error_functions = [as_error_function(fn) for fn in error_functions]
         if reporter is None:
-            self.reporter = StdoutErrorReporter()
+            self.reporter = ConsoleErrorReporter()
         else:
             self.reporter = reporter
 
@@ -548,7 +548,7 @@ class ErrorEvaluationStep(PostProcessingStep):
             Dataset containing the resolution pyramid for evaluation.
 
         context
-            see :doc:`~volsegtools.abc.PostProcessingStep`
+            see :class:`~volsegtools.abc.PostProcessingStep`
 
         Returns
         -------
@@ -634,14 +634,14 @@ class ErrorEvaluationStep(PostProcessingStep):
         Parameters
         ----------
         datasets
-            see :doc:`~volsegtools.abc.PostProcessingStep`
+            see :class:`~volsegtools.abc.PostProcessingStep`
 
         context
-            see :doc:`~volsegtools.abc.PostProcessingStep`
+            see :class:`~volsegtools.abc.PostProcessingStep`
 
         Returns
         -------
-        list[Dataset]
+        list[DataSet]
             Unchanged list of datasets with all resolutions. Error evalution
             does not change anything in the input.
         """
