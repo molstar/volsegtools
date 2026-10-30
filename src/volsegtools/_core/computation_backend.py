@@ -2,6 +2,8 @@ from __future__ import annotations
 
 from typing import TYPE_CHECKING, Protocol, TypeVar
 
+from volsegtools._core.public_api import public_module
+
 if TYPE_CHECKING:
     from volsegtools._model.metadata import DescriptiveStatistics
     from volsegtools.typing import ZarrObject
@@ -9,6 +11,7 @@ if TYPE_CHECKING:
 TData = TypeVar("TData")
 
 
+@public_module("volsegtools.abc")
 class ComputationBackend(Protocol[TData]):
     """Provides access to the computation behind arrays."""
 
