@@ -382,7 +382,7 @@ def run(
         if size_report_path is not None:
             reporter = vst.JSONSizeReporter(size_report_path)
         else:
-            reporter = vst.StdoutSizeReporter()
+            reporter = vst.ConsoleSizeReporter()
         builder.add_post_process_step(
             vst.SizeEvaluationStep(
                 reporter,
@@ -394,7 +394,7 @@ def run(
         builder.add_post_process_step(
             vst.ErrorEvaluationStep(
                 [get_error_function(fn) for fn in error_func],
-                reporter=vst.StdoutErrorReporter(),
+                reporter=vst.ConsoleErrorReporter(),
                 label=f"{strategy}",
             )
         )
