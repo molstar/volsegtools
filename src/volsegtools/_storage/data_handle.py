@@ -4,8 +4,9 @@ from typing import Self
 import trimesh
 import zarr
 
-from volsegtools._core import ComputationBackend, DataKind, TData, WorkingStore
+from volsegtools._core import DataKind, TData, WorkingStore
 from volsegtools._model.metadata import DescriptiveStatistics
+from volsegtools.abc import ComputationBackend
 from volsegtools.typing import ZarrObject
 
 
