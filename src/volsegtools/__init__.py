@@ -44,7 +44,7 @@ from ._core import (
     to_micrometer,
     unit_from_str,
 )
-from ._core.public_api import set_public_module
+from ._core.public_api import set_public_module as _set_public_module
 from ._downsampling import (
     AveragePooling,
     InterpolationBased,
@@ -238,4 +238,4 @@ __all__ = [
     "unit_from_str",
 ]
 
-set_public_module(globals())
+_set_public_module(globals())
