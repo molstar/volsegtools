@@ -4,6 +4,7 @@ Contains abstract interface to core classes that are used in the processing pipe
 
 from volsegtools._core.computation_backend import ComputationBackend
 from volsegtools._core.kernel import ConvolutionKernel
+from volsegtools._core.public_api import set_public_module as _set_public_module
 
 from .bundler import Bundler
 from .converter import Converter
@@ -27,9 +28,4 @@ __all__ = [
     "TData",
 ]
 
-import inspect as _inspect
-
-for _name in __all__:
-    _obj = globals().get(_name)
-    if _inspect.isclass(_obj) or _inspect.isfunction(_obj):
-        _obj.__module__ = __name__
+_set_public_module(globals())
