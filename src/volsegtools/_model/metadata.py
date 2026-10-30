@@ -65,10 +65,10 @@ class TimeFrameMetadata(pydantic.BaseModel):
     """
 
 
-@pydantic.dataclasses.dataclass
-class DescriptiveStatistics:
+class DescriptiveStatistics(pydantic.BaseModel):
     """Statistics about the data that might be required for serialization."""
 
+    model_config = pydantic.ConfigDict(use_attribute_docstrings=True)
 
     mean: float = 0.0
     """
@@ -86,6 +86,13 @@ class DescriptiveStatistics:
     """
     Maximum value in the channel.
     """
+
+    # We need this as a workaround so that we can use init function as we are
+    # accustomed from dataclasses, but we retain the semantics of a base model.
+    def __init__(
+        self, mean: float = 0.0, std: float = 0.0, max: float = 0.0, min: float = 0.0
+    ) -> None:
+        super().__init__(mean=mean, std=std, max=max, min=min)
 
 
 class ChannelMetadata(pydantic.BaseModel):
