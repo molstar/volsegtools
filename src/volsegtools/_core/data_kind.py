@@ -11,25 +11,24 @@ class DataKind(enum.IntEnum):
     During processing it is often required to know which kind of data is the
     currently processed dataset. For this reason each dataset should be
     accompanied with this value.
-
-    Attributes
-    ----------
-    VOLUME
-        The data is a simple volumetric data.
-    SEGMENTATION_VOLUME
-        The data is volumetric, but it is representing a segmentation.
-    SEGMENTATION_MASK
-        The data is volumetric, representing a segmentation and it is
-        categorical.
-    SEGMENTATION_MASK
-        The data is represented as a triangular mesh and it is representing
-        a segmentation.
     """
 
     VOLUME = enum.auto()
+    """
+    The data is a simple volumetric data.
+    """
     SEGMENTATION_VOLUME = enum.auto()
+    """
+    The data is volumetric, but it is representing a segmentation.
+    """
     SEGMENTATION_MASK = enum.auto()
+    """
+    The data is volumetric, representing a segmentation and it is categorical.
+    """
     SEGMENTATION_MESH = enum.auto()
+    """
+    The data is represented as a triangular mesh and it is representing a segmentation.
+    """
 
     def is_volume(self) -> bool:
         """Checks whether the current kind is volumetric.

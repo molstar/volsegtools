@@ -30,8 +30,6 @@ class Timer:
 
     Attributes
     ----------
-    RESOLUTION
-        How many decimal numbers are considered.
     start
         Unix time denoting the start of measurement collection.
     points
@@ -43,6 +41,9 @@ class Timer:
     """
 
     RESOLUTION = 3
+    """
+    How many decimal numbers are considered.
+    """
 
     class Stage:
         """Represents a single stage measurement in a pipeline.

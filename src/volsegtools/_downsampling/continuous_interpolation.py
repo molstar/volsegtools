@@ -18,15 +18,30 @@ vst_logger = logging.getLogger("volsegtools")
 
 
 class SplineOrder(enum.IntEnum):
+    """The order of spline used for the interpolation."""
+
     TRILINEAR = 1
     TRICUBIC = 3
     TRIQUINTIC = 5
 
 
 class InterpolationBased(DownsamplingStrategy[Channel]):
+    """Base class for downsampling methods based on spline interpolation."""
+
     def __init__(self, order: SplineOrder, zoom: float):
         """
+        Parameters
+        ----------
+        order
+            Order of spline used for interpolation.
         zoom
+            Goal zoom level of the method.
+
+        Raises
+        ------
+        RuntimeError
+            If the ``zoom`` is close to 0.
+            If unknown spline order was provided.
         """
 
         if math.isclose(zoom, 0):
