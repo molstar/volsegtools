@@ -29,16 +29,16 @@ class BCIFSerializer(Serializer):
             # We have to create the SERVER category, because it is required, we
             # just have to say that it is a box
             writer.start_data_block("SERVER")
-            writer.write_category(DensityServerResultDesc, [np.arange(0)])
+            writer.write_category(_DensityServerResultDesc(), [np.arange(0)])
 
             data = channel.handle.get_lattice(DaskBackend)
             data = data.transpose(data_set.metadata.axis_order.to_tuple(dtype=int))
             data = np.ravel(data.compute(), order="F")
 
             writer.start_data_block("EM")
-            writer.write_category(VolumeData3DInfoDesc, [channel])
+            writer.write_category(_VolumeData3DInfoDesc(), [channel])
 
-            writer.write_category(VolumeData3DDesc, [data])
+            writer.write_category(_VolumeData3DDesc(), [data])
 
             file_name = create_file_name(channel, ".bcif")
 
@@ -48,7 +48,7 @@ class BCIFSerializer(Serializer):
         return output_files
 
 
-class VolumeData3DInfoDesc(CategoryDesc):
+class _VolumeData3DInfoDesc(CategoryDesc):
     name = "volume_data_3d_info"
 
     @staticmethod
@@ -239,7 +239,7 @@ class VolumeData3DInfoDesc(CategoryDesc):
         ]
 
 
-class DensityServerResultDesc(CategoryDesc):
+class _DensityServerResultDesc(CategoryDesc):
     name = "density_server_result"
 
     @staticmethod
@@ -253,7 +253,7 @@ class DensityServerResultDesc(CategoryDesc):
         ]
 
 
-class VolumeData3DDesc(CategoryDesc):
+class _VolumeData3DDesc(CategoryDesc):
     name = "volume_data_3d"
 
     @staticmethod
