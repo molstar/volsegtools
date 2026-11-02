@@ -6,7 +6,7 @@ internal (private) modules.
 """
 
 # this makes it possible to use abbreviation for `volsegtools` and then using `abc`.
-from . import abc
+from . import abc, typing
 from ._bundling import (
     MVSXBundler,
     ResolutionZipBundler,
@@ -245,6 +245,7 @@ __all__ = [
     "logger",
     "to_angstrom",
     "to_micrometer",
+    "typing",
     "unit_from_str",
 ]
 
