@@ -129,7 +129,7 @@ from ._storage import (
     info_from_file_path,
 )
 
-__version__ = "0.3.0"
+__version__ = "0.3.1"
 
 import logging
 
