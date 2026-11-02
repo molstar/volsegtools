@@ -229,9 +229,7 @@ __all__ = [
     "VRMLConverter",
     "WorkingStore",
     "ZipBundler",
-    # Built-in
     "__version__",
-    # Namespace Shortcuts
     "abc",
     "as_error_function",
     "calculate_approx_downsampled_sizes",
