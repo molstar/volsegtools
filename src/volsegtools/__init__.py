@@ -106,6 +106,7 @@ from ._processing import (
 )
 from ._serialization import (
     BCIFSerializer,
+    MeshSerializationFunction,
     MeshSerializer,
     MRCSerializer,
     OBJSerializer,
@@ -175,6 +176,7 @@ __all__ = [
     "Mesh",
     "MeshConverter",
     "MeshMetadata",
+    "MeshSerializationFunction",
     "MeshSerializer",
     "MinPooling",
     "NGFFConverter",
