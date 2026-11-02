@@ -92,4 +92,3 @@ def test_processing_step_is_called(tmp_path):
     )
 
     assert processing_step.called_method("execute")
-
