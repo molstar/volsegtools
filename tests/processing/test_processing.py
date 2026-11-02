@@ -1,9 +1,9 @@
 from pathlib import Path
 
-from tests.mocks import (
-    MockConverter,
-    MockPostProcessingStep,
-    MockSerializer,
+from tests.stubs import (
+    StubConverter,
+    StubPostProcessingStep,
+    StubSerializer,
 )
 
 import pytest
@@ -26,10 +26,10 @@ def test_pipeline_throws_if_converter_for_data_kind_not_present(
 ):
     builder = vst.ProcessingPipelineBuilder()
 
-    converter = MockConverter()
-    serializer = MockSerializer()
+    converter = StubConverter()
+    serializer = StubSerializer()
 
-    (builder.set_serializer(kind, serializer).set_local_store_path(Path(tmp_path)))
+    builder.set_serializer(serializer, kind).set_local_store_path(Path(tmp_path))
 
     if kind.is_segmentation():
         builder.add_segmentation_converter(converter)
@@ -48,14 +48,14 @@ def test_pipeline_throws_if_converter_for_data_kind_not_present(
 def test_converter_is_called_once_per_file(tmp_path):
     builder = vst.ProcessingPipelineBuilder()
 
-    volume_converter = MockConverter()
-    segmentation_converter = MockConverter()
-    serializer = MockSerializer()
+    volume_converter = StubConverter()
+    segmentation_converter = StubConverter()
+    serializer = StubSerializer()
 
     (
         builder.add_volume_converter(volume_converter)
         .add_segmentation_converter(segmentation_converter)
-        .set_serializer(vst.DataKind.VOLUME, serializer)
+        .set_serializer(serializer, vst.DataKind.VOLUME)
         .set_local_store_path(Path(tmp_path))
     )
 
@@ -74,14 +74,14 @@ def test_converter_is_called_once_per_file(tmp_path):
 def test_processing_step_is_called(tmp_path):
     builder = vst.ProcessingPipelineBuilder()
 
-    converter = MockConverter()
-    processing_step = MockPostProcessingStep()
-    serializer = MockSerializer()
+    converter = StubConverter()
+    processing_step = StubPostProcessingStep()
+    serializer = StubSerializer()
 
     (
         builder.add_volume_converter(converter)
         .add_post_process_step(processing_step)
-        .set_serializer(vst.DataKind.VOLUME, serializer)
+        .set_serializer(serializer, vst.DataKind.VOLUME)
         .set_local_store_path(Path(tmp_path))
     )
 
@@ -93,26 +93,3 @@ def test_processing_step_is_called(tmp_path):
 
     assert processing_step.called_method("execute")
 
-
-class StubMetadata:
-    def __init__(self, kind):
-        self.kind = kind
-        self.id = "stub"
-        self.resolution = 0
-
-    def model_copy(self, deep):
-        return self
-
-
-class StubChannel:
-    def __init__(self, parent):
-        self.parent = parent
-
-
-class StubDataset:
-    def __init__(self, kind):
-        self.metadata = StubMetadata(kind)
-        self.shape = (1, 1, 1)
-
-    def flat_channel_iter(self):
-        return [StubChannel(self)]

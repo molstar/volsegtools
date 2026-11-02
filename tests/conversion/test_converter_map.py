@@ -1,6 +1,6 @@
 import itertools
 
-from tests.mocks import MockConverter
+from tests.stubs import StubConverter
 
 import pytest
 
@@ -14,7 +14,7 @@ def test_empty_converter():
 
 def test_non_empty_converter():
     converter_map = vst.ConverterMap()
-    converter_map.add_converter(MockConverter())
+    converter_map.add_converter(StubConverter())
     assert not converter_map.is_empty()
 
 
@@ -25,7 +25,7 @@ def test_str_empty_converter():
 
 def test_str_converter():
     converter_map = vst.ConverterMap()
-    converter = MockConverter()
+    converter = StubConverter()
     converter_map.add_converter(converter)
     test_dict = {"mock": converter}
     assert str(converter_map) == f"ConverterMap({test_dict})"
@@ -34,8 +34,8 @@ def test_str_converter():
 @pytest.mark.parametrize(
     "extensions,converter",
     [
-        (["mock"], MockConverter()),
-        (["abc", "def"], MockConverter(suffixes=["abc", "def"])),
+        (["mock"], StubConverter()),
+        (["abc", "def"], StubConverter(suffixes=["abc", "def"])),
     ],
 )
 def test_adding_converters(extensions, converter):
@@ -48,8 +48,8 @@ def test_adding_converters(extensions, converter):
 @pytest.mark.parametrize(
     "extensions,converter",
     [
-        (["mock"], MockConverter(compression=True)),
-        (["abc", "def"], MockConverter(suffixes=["abc", "def"], compression=True)),
+        (["mock"], StubConverter(compression=True)),
+        (["abc", "def"], StubConverter(suffixes=["abc", "def"], compression=True)),
     ],
 )
 def test_adding_converters_with_compression_support(extensions, converter):
@@ -65,15 +65,15 @@ def test_adding_converters_with_compression_support(extensions, converter):
         assert converter_map[ext] == converter
 
 
-def test_adding_converter_without_suffix():
+def test_adding_converter_without_suffix(make_converter):
     converter_map = vst.ConverterMap()
     with pytest.raises(RuntimeError):
-        converter_map.add_converter(MockConverter(suffixes=[]))
+        converter_map.add_converter(make_converter(suffixes=[]))
 
 
 def test_mapping_converter():
     converter_map = vst.ConverterMap()
-    converter = MockConverter(suffixes=["abc", "def"])
+    converter = StubConverter(suffixes=["abc", "def"])
     converter_map.add_converter(converter)
     converter_map.map_converter(converter, "ghi")
     for ext in ["abc", "def", "ghi"]:
@@ -83,7 +83,7 @@ def test_mapping_converter():
 def test_mapping_converter_with_empty_suffix():
     converter_map = vst.ConverterMap()
     with pytest.raises(RuntimeError):
-        converter_map.map_converter(MockConverter(), "")
+        converter_map.map_converter(StubConverter(), "")
 
 
 @pytest.mark.parametrize(
@@ -92,7 +92,7 @@ def test_mapping_converter_with_empty_suffix():
 )
 def test_unsupported_compression_for_converter(compression):
     converter_map = vst.ConverterMap()
-    converter_map.add_converter(MockConverter())
+    converter_map.add_converter(StubConverter())
     with pytest.raises(vst.UnsupportedCompressionError):
         converter_map["mock." + compression]
 
@@ -113,7 +113,7 @@ def test_unsupported_compression_for_converter(compression):
 )
 def test_converter_map_with_valid_inputs(input):
     converter_map = vst.ConverterMap()
-    converter = MockConverter(compression=True)
+    converter = StubConverter(compression=True)
     converter_map.add_converter(converter)
     assert converter_map[input] == converter
 
@@ -129,7 +129,7 @@ def test_converter_map_with_valid_inputs(input):
 )
 def test_converter_map_with_invalid_inputs(input):
     converter_map = vst.ConverterMap()
-    converter = MockConverter(compression=True)
+    converter = StubConverter(compression=True)
     converter_map.add_converter(converter)
     with pytest.raises(KeyError):
         converter_map[input]
@@ -137,8 +137,8 @@ def test_converter_map_with_invalid_inputs(input):
 
 def test_map_overwrites_converter():
     converter_map = vst.ConverterMap()
-    converter1 = MockConverter()
-    converter2 = MockConverter()
+    converter1 = StubConverter()
+    converter2 = StubConverter()
 
     converter_map.add_converter(converter1)
     assert converter_map["mock"] == converter1
@@ -149,8 +149,8 @@ def test_map_overwrites_converter():
 
 def test_add_overwrites_converter():
     converter_map = vst.ConverterMap()
-    converter1 = MockConverter()
-    converter2 = MockConverter()
+    converter1 = StubConverter()
+    converter2 = StubConverter()
 
     converter_map.map_converter(converter1, "mock")
     assert converter_map["mock"] == converter1

@@ -1,6 +1,6 @@
 import itertools
 
-from tests.mocks import MockConverter, MockSerializer
+from tests.stubs import StubSerializer
 
 import pytest
 import zarr.storage
@@ -29,15 +29,15 @@ def generate_data_kind_permutations():
     [*generate_data_kind_permutations()],
     ids=lambda x: f"data_kinds={x}",
 )
-def test_valid_construction_with_serializer(data_kinds):
+def test_valid_construction_with_serializer(data_kinds, make_converter, make_serializer):
     builder = vst.ProcessingPipelineBuilder()
-    builder.add_volume_converter(MockConverter())
+    builder.add_volume_converter(make_converter())
     for kind in data_kinds:
-        builder.set_serializer(MockSerializer(), kind)
+        builder.set_serializer(make_serializer(), kind)
 
     pipeline = builder.build()
     for kind in data_kinds:
-        assert isinstance(pipeline._serializer_map[kind], MockSerializer)
+        assert isinstance(pipeline._serializer_map[kind], StubSerializer)
 
 
 # Downsampler Setting
