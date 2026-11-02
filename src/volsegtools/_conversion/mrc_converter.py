@@ -97,9 +97,9 @@ class MRCConverter(Converter):
         lattice_shape = AxisValues(*array.shape)
 
         cell_size = AxisValues(
-            float(mrc_header.cella.x),
-            float(mrc_header.cella.y),
-            float(mrc_header.cella.z),
+            float(mrc_header.cella.x) * int(mrc_header.nx) / int(mrc_header.mx),
+            float(mrc_header.cella.y) * int(mrc_header.ny) / int(mrc_header.my),
+            float(mrc_header.cella.z) * int(mrc_header.nz) / int(mrc_header.mz),
         )
 
         origin = AxisValues(
