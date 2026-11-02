@@ -12,15 +12,14 @@ class DaskBackend(ComputationBackend[da.Array]):
     This backend should be used if there is an access to (even multiple)
     multi-core CPU. As it is balancing the load between them leveraging modern
     approaches in the parallel programming.
-
-    Attributes
-    ----------
-    DEFAULT_CHUNKS
-        Loading from zarr is done using this default chunking. It should be
-        reasonable size for most generic use-cases.
     """
 
     DEFAULT_CHUNKS = (256, 256, 256)
+    """Default chunks used for working with the data using Dask.
+
+    It should be some reasonable size that should be around ~2MiB according
+    to the documentation.
+    """
 
     @staticmethod
     def get_name() -> str:
