@@ -13,4 +13,25 @@ class Serializer(Protocol):
         data_set: DataSet,
         output_path: Path,
         context: PipelineContext,
-    ) -> list[Path]: ...
+    ) -> list[Path]:
+        """Serialize given dataset.
+
+        Some output formats do not support holding several resolutions in
+        a single file, therefore, we have to create multiple files for each
+        resolution and/or time frame or channel.
+
+        Parameters
+        ----------
+        data_set
+            Data that will be serialized.
+        output_path
+            Output directory for the serialized files.
+        context
+            Context of the pipeline executing this serializer.
+
+        Returns
+        -------
+        list[Path]
+            List of serialized files.
+        """
+        ...
