@@ -8,6 +8,7 @@ import from the `volsegtools` namespace.
 from .axis_values import AxisValues, create_reorder_permutation
 from .bytes import Bytes
 from .chunking_mode import ChunkingMode
+from .compression_level import CompressionLevel
 from .computation_backend import ComputationBackend, TData
 from .data_kind import DataKind, SerializableDataKind
 from .gaussian_kernel import Gaussian3DKernel
@@ -20,6 +21,7 @@ __all__ = [
     "AxisValues",
     "Bytes",
     "ChunkingMode",
+    "CompressionLevel",
     "ComputationBackend",
     "ConsoleTimerReporter",
     "ConvolutionKernel",

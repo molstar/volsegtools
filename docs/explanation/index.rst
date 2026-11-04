@@ -13,3 +13,4 @@ information about the library and its architecture.
     :caption: Getting Started
 
     pipeline-architecture
+    compression
