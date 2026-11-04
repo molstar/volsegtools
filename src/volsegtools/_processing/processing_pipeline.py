@@ -7,7 +7,8 @@ import logging
 
 from volsegtools._conversion.converter_map import ConverterMap
 from volsegtools._core import AxisValues, Bytes, DataKind, Timer, WorkingStore
-from volsegtools._downsampling.null import Null
+from volsegtools._downsampling import Null, calculate_threshold_for_resolution
+from volsegtools._downsampling.common import calculate_steps
 from volsegtools._model import (
     PipelineStageKind,
     PipelineState,
@@ -71,6 +72,7 @@ class ProcessingPipeline(volsegtools.abc.ProcessingPipeline):
         local_store_path: Path | None = None,
         output_dir: Path | None = None,
         keep_original: bool = False,
+        resolution_target: int | None = None,
         size_threshold: Bytes = DEFAULT_SIZE_THRESHOLD,
     ):
         post_conversion_steps = post_conversion_steps or []
@@ -113,6 +115,7 @@ class ProcessingPipeline(volsegtools.abc.ProcessingPipeline):
             ),
         )
 
+        self._resolution_target = resolution_target
         self.context = PipelineContext(
             timer=Timer(),
             working_store=self.working_store,
@@ -329,7 +332,28 @@ class ProcessingPipeline(volsegtools.abc.ProcessingPipeline):
 
         msg = "Finished downsampling '{}' of ch{} with r{}"
 
-        # TODO: add early check for the number of downsampling levels
+        # The original resolution is not calculated to the total amount.
+        current_levels = len(dataset.resolutions) - 1
+
+        if (
+            self._resolution_target is not None
+            and self._resolution_target > current_levels
+        ):
+            self.context.size_threshold = calculate_threshold_for_resolution(
+                next(dataset.flat_channel_iter()),
+                self._resolution_target,
+            )
+
+        levels = calculate_steps(
+            next(dataset.flat_channel_iter()),
+            self.context.size_threshold,
+        )
+        if levels <= current_levels:
+            id = dataset.metadata.id
+            vst_logger.warning(
+                f"Dataset '{id}' already contains {levels} resolution levels."
+            )
+            return dataset
 
         lowest_resolution = dataset.resolutions[-1]
 

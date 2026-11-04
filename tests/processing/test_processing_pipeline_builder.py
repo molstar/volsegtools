@@ -1,4 +1,5 @@
 import itertools
+import logging
 
 from tests.stubs import StubSerializer
 
@@ -124,3 +125,38 @@ def test_explicit_store_path_should_override_default(
 
     assert local_store_path.exists()
     assert not vst.ProcessingPipelineBuilder.DEFAULT_LOCAL_STORE_PATH.exists()
+
+
+# Setting resolution target
+
+
+def test_setting_resolution_target(valid_builder):
+    valid_builder.set_resolution_target(2)
+    pipeline = valid_builder.build()
+    assert pipeline._resolution_target == 2
+
+
+def test_setting_default_resolution_target(valid_builder):
+    pipeline = valid_builder.build()
+    assert pipeline._resolution_target is None
+
+
+@pytest.mark.parametrize("target", [-1, 0])
+def test_invalid_resolution_target(valid_builder, target):
+    with pytest.raises(ValueError):
+        valid_builder.set_resolution_target(target)
+
+
+@pytest.mark.parametrize("threshold", [10, vst.ProcessingPipeline.DEFAULT_SIZE_THRESHOLD])
+def test_setting_resolution_target_and_threshold(valid_builder, caplog, threshold):
+    valid_builder.set_resolution_target(2)
+    valid_builder.set_downsampling_size_threshold(threshold)
+
+    with caplog.at_level(logging.WARNING, logger="volsegtools"):
+        valid_builder.build()
+
+    assert len(caplog.records) == 1
+    record = caplog.records[0]
+    assert record.name == "volsegtools"
+    assert record.levelno == logging.WARNING
+    assert "overrides" in record.getMessage()

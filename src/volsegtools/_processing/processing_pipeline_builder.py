@@ -37,6 +37,8 @@ class ProcessingPipelineBuilder:
         self._bundler = None
         self._keep_original = True
         self._threshold = ProcessingPipeline.DEFAULT_SIZE_THRESHOLD
+        self._threshold_dirty_flag = False
+        self._resolution_target = None
 
     def _mend_suffixes(
         self,
@@ -378,6 +380,37 @@ class ProcessingPipelineBuilder:
             raise RuntimeError("Size threshold has be bigger than 0!")
 
         self._threshold = threshold
+        self._threshold_dirty_flag = True
+        return self
+
+    def set_resolution_target(self, resolution_cnt: int) -> Self:
+        """Set the number of resolutions that you want to create.
+
+        The original resolution is not counted towards the final number of
+        resolutions! Therefore, if you pass '2' into this function it is going
+        to create two additional downsampling levels (if possible).
+
+        It has higher precedence than custom treshold.
+
+        Parameters
+        ----------
+        resolution_cnt
+            Number of desired resolution levels.
+
+        Raises
+        ------
+        ValueError
+            If the number of resolution levels is not positive (<0).
+
+        Returns
+        -------
+        Self
+            Reference to this builder.
+        """
+        if resolution_cnt <= 0:
+            raise ValueError("The target count of resolution levels must be positive")
+
+        self._resolution_target = resolution_cnt
         return self
 
     def build(self) -> ProcessingPipeline:
@@ -400,6 +433,9 @@ class ProcessingPipelineBuilder:
             and self._volume_converter_map.is_empty()
         ):
             raise RuntimeError("segmentation or volume converter has to be set!")
+
+        if self._threshold_dirty_flag and self._resolution_target is not None:
+            vst_logger.warning("Resolution level target overrides custom threshold!")
 
         if all(x is None for x in self._serializer_map.values()):
             raise RuntimeError("Atleast one serializer must set")
@@ -426,6 +462,7 @@ class ProcessingPipelineBuilder:
             output_dir=self._output_dir,
             keep_original=self._keep_original,
             size_threshold=self._threshold,
+            resolution_target=self._resolution_target,
         )
 
 

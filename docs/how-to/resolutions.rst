@@ -46,6 +46,23 @@ would write:
         .set_downsampling_size_threshold(threshold
     )
 
+Or you can use the builtin method from the builder:
+
+.. code-block:: python
+
+    builder = vst.create_builder()
+    (
+        # setting of other parts is omitted
+        .set_resolution_target(2)
+    )
+
+This is going to produce additional 2 resolutions next to the original (i.e.,
+you are effectively telling the pipeline how many downsampling you want the
+final dataset to have). However, if the input dataset already contains target
+number of resolutions **no downsampling is going to take a place**. For
+example, if you would pass in a dataset that has the original resolution and 1
+additional resolution level then the pipeline will produce only a single new
+level.
 
 This design is reflected the in CLI and you can use either the ``--threshold``
 or ``--resolutions`` flags:
