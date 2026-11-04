@@ -404,7 +404,6 @@ class ProcessingPipeline(volsegtools.abc.ProcessingPipeline):
     async def serialize(self, dataset: DataSet) -> list[Path]:
         kind = dataset.metadata.kind
 
-        print(self._serializer_map)
         serializer = self._serializer_map[kind]
         if serializer is None:
             raise RuntimeError(f"Could not find serializer for '{kind}'")
