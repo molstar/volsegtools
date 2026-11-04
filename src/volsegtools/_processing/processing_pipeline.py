@@ -238,7 +238,8 @@ class ProcessingPipeline(volsegtools.abc.ProcessingPipeline):
 
         serialized_files = await asyncio.gather(*map(self.serialize, datasets))
         serialized_files = _flatten(serialized_files)
-        return await self.bundle(serialized_files)
+        output_files = await self.bundle(serialized_files)
+        return [file.resolve() for file in output_files]
 
     @pipeline_stage("Volume Conversion")
     async def convert_volumes(self, paths: list[Path]) -> list[DataSet]:
