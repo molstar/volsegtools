@@ -230,10 +230,12 @@ class StubHandle:
         nbytes: int = 0,
         data: npt.ArrayLike | None = None,
         zarr_object: Any | None = None,
+        dtype: npt.DTypeLike | None = None,
     ):
         self.data = data
         self.zarr_object = zarr_object
         self.nbytes = int(np.asarray(data).nbytes) if data is not None else nbytes
+        self.dtype = dtype
 
     def get_lattice(self, backend=None) -> npt.ArrayLike:
         if self.data is None:
@@ -276,10 +278,11 @@ class StubChannel:
         nbytes: int = 0,
         id: int = 0,
         data: npt.ArrayLike | None = None,
+        dtype: npt.DTypeLike | None = None,
     ):
         self.parent = parent
         self.metadata = SimpleNamespace(id=id)
-        self.handle = StubHandle(nbytes, data=data)
+        self.handle = StubHandle(nbytes, data=data, dtype=dtype)
 
     @property
     def resolution(self):
