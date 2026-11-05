@@ -1,20 +1,87 @@
 from collections.abc import Collection
 from pathlib import Path
 
-from ciftools.binary.encoder import BYTE_ARRAY
+import logging
+
+from ciftools.binary.encoder import (
+    BYTE_ARRAY,
+    DELTA,
+    INTEGER_PACKING,
+    ComposeEncoders,
+    FixedPoint,
+)
+from ciftools.binary.writer import RUN_LENGTH
 from ciftools.models.writer import CIFCategoryDesc as CategoryDesc, CIFFieldDesc as Field
 
 import ciftools
 import ciftools.serialization
 import numpy as np
 
+from volsegtools._core import CompressionLevel
 from volsegtools._model import PipelineContext
 from volsegtools._processing import DaskBackend
 from volsegtools._storage import Channel, DataSet, create_file_name
 from volsegtools.abc import Serializer
 
+vst_logger = logging.getLogger("volsegtools")
+
 
 class BCIFSerializer(Serializer):
+    def __init__(
+        self,
+        level: CompressionLevel = CompressionLevel.LOSSLESS,
+    ):
+        """Construct BinaryCIF Serializer.
+
+        Parameters
+        ----------
+        level
+            The level of compression aggresiveness, the higher it is the more
+            lossful compression schemes can be applied to the data.
+        """
+        self.level = level
+
+    @staticmethod
+    def _continuous_volume_encoder(
+        level: CompressionLevel, channel: Channel
+    ) -> ComposeEncoders:
+        """Create encoder for continuous (float) volume."""
+        match level:
+            case CompressionLevel.LOW:
+                return ComposeEncoders(FixedPoint(1000), DELTA, INTEGER_PACKING)
+            case CompressionLevel.MEDIUM:
+                return ComposeEncoders(
+                    FixedPoint(100), DELTA, RUN_LENGTH, INTEGER_PACKING
+                )
+            case CompressionLevel.HIGH | CompressionLevel.MAXIMUM:
+                return ComposeEncoders(FixedPoint(10), DELTA, RUN_LENGTH, INTEGER_PACKING)
+            case _:
+                return ComposeEncoders(BYTE_ARRAY)
+
+    @staticmethod
+    def _discrete_volume_encoder(
+        level: CompressionLevel, channel: Channel
+    ) -> ComposeEncoders:
+        if (
+            channel.handle.dtype in (np.int64, np.uint64)
+            and level != CompressionLevel.LOSSLESS
+        ):
+            vst_logger.warning("non-lossless compression turns 64-bit to 32-bit!")
+
+        match level:
+            case CompressionLevel.LOSSLESS:
+                return ComposeEncoders(INTEGER_PACKING)
+            case CompressionLevel.MAXIMUM:
+                return ComposeEncoders(DELTA, RUN_LENGTH, INTEGER_PACKING)
+            case _:
+                return ComposeEncoders(DELTA, RUN_LENGTH, INTEGER_PACKING)
+
+    @staticmethod
+    def _choose_encoder(level: CompressionLevel, channel: Channel):
+        if np.issubdtype(channel.handle.dtype, np.integer):
+            return BCIFSerializer._discrete_volume_encoder(level, channel)
+        return BCIFSerializer._continuous_volume_encoder(level, channel)
+
     async def serialize(
         self,
         data_set: DataSet,
@@ -38,7 +105,8 @@ class BCIFSerializer(Serializer):
             writer.start_data_block("EM")
             writer.write_category(_VolumeData3DInfoDesc(), [channel])
 
-            writer.write_category(_VolumeData3DDesc(), [data])
+            encoder = self._choose_encoder(self.level, channel)
+            writer.write_category(_VolumeData3DDesc(encoder), [data])
 
             file_name = create_file_name(channel, ".bcif")
 
@@ -254,7 +322,13 @@ class _DensityServerResultDesc(CategoryDesc):
 
 
 class _VolumeData3DDesc(CategoryDesc):
+    def encoder_fn(self):
+        return BYTE_ARRAY
+
     name = "volume_data_3d"
+
+    def __init__(self, encoder):
+        _VolumeData3DDesc.encoder_fn = lambda _: encoder
 
     @staticmethod
     def get_row_count(data: np.ndarray) -> int:
@@ -262,14 +336,11 @@ class _VolumeData3DDesc(CategoryDesc):
 
     @staticmethod
     def get_field_descriptors(data: np.ndarray) -> Collection[Field]:
-        def volume_server_encoder(_):
-            return BYTE_ARRAY
-
         return [
             Field.number_array(
                 name="values",
                 array=lambda volume: volume,
-                encoder=volume_server_encoder,
+                encoder=_VolumeData3DDesc.encoder_fn,
                 dtype=data.dtype,
             ),
         ]
