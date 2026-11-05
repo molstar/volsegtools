@@ -30,7 +30,33 @@ class TimeFrame:
     def zarr_path(self):
         return self.resolution.zarr_path / f"time_frame_{self.metadata.id}"
 
-    def add_channel(self, id):
+    def add_channel(self, id: int | None = None) -> Channel:
+        """Add a new channel to this time frame.
+
+        Parameters
+        ----------
+        id
+            Either it is the desired id of the channel, or you do not have to
+            provide any and then the time frame is going to assign its own.
+
+        Raises
+        ------
+        RuntimeError
+            If channel with the same id is already present.
+
+        Returns
+        -------
+        Channel
+            New channel associated with this time frame.
+        """
+        if id is None:
+            id = len(self.channels)
+
+        if any(map(lambda x: x.metadata.id == id, self.channels)):
+            raise RuntimeError(
+                f"Channel '{id}' is already present in time frame '{self.metadata.id}"
+            )
+
         self.channels.append(Channel(self, id))
         return self.channels[-1]
 
