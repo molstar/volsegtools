@@ -26,7 +26,7 @@ class MRCSerializer(Serializer):
 
         for channel in data_set.flat_channel_iter():
             file_name = create_file_name(channel, ".mrc")
-            output_file_path = output_path / file_name
+            output_file_path = (output_path / file_name).resolve()
             vst_logger.info(f"... serialized into {output_file_path}")
 
             data = channel.handle.get_lattice(DaskBackend)
