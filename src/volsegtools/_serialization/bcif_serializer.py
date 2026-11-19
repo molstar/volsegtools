@@ -17,7 +17,7 @@ import ciftools
 import ciftools.serialization
 import numpy as np
 
-from volsegtools._core import CompressionLevel
+from volsegtools._core import AxisValues, CompressionLevel
 from volsegtools._model import PipelineContext
 from volsegtools._processing import DaskBackend
 from volsegtools._storage import Channel, DataSet, create_file_name
@@ -116,6 +116,17 @@ class BCIFSerializer(Serializer):
         return output_files
 
 
+def _in_axis_order(values: AxisValues, axis_order: AxisValues) -> tuple:
+    """Reorder canonical (x, y, z) values to follow ``axis_order``.
+
+    Mol* reads ``axis_order`` as fast-to-slow and expects ``origin``,
+    ``dimensions`` and ``sample_count`` to be listed in the same order, i.e.,
+    the i-th value belongs to the canonical axis ``axis_order[i]``.
+    """
+    canonical = values.to_tuple()
+    return tuple(canonical[i] for i in axis_order.to_tuple(dtype=int))
+
+
 class _VolumeData3DInfoDesc(CategoryDesc):
     name = "volume_data_3d_info"
 
@@ -130,6 +141,13 @@ class _VolumeData3DInfoDesc(CategoryDesc):
 
         data_set = channel.data_set
         resolution = channel.resolution
+
+        # Mol* expects these to be listed in the order of the data axes (the
+        # same order as "axis_order"), not in canonical x, y, z order.
+        origin = _in_axis_order(data_set.metadata.origin, data_set.metadata.axis_order)
+        sample_count = _in_axis_order(
+            resolution.metadata.lattice_shape, data_set.metadata.axis_order
+        )
 
         return [
             Field.strings(
@@ -156,19 +174,19 @@ class _VolumeData3DInfoDesc(CategoryDesc):
             ),
             Field.numbers(
                 name="origin[0]",
-                value=lambda d, i: data_set.metadata.origin.x,
+                value=lambda d, i: origin[0],
                 encoder=volume_server_encoder,
                 dtype="i4",
             ),
             Field.numbers(
                 name="origin[1]",
-                value=lambda d, i: data_set.metadata.origin.y,
+                value=lambda d, i: origin[1],
                 encoder=volume_server_encoder,
                 dtype="i4",
             ),
             Field.numbers(
                 name="origin[2]",
-                value=lambda d, i: data_set.metadata.origin.z,
+                value=lambda d, i: origin[2],
                 encoder=volume_server_encoder,
                 dtype="i4",
             ),
@@ -198,19 +216,19 @@ class _VolumeData3DInfoDesc(CategoryDesc):
             ),
             Field.numbers(
                 name="sample_count[0]",
-                value=lambda d, i: resolution.metadata.lattice_shape.x,
+                value=lambda d, i: sample_count[0],
                 encoder=volume_server_encoder,
                 dtype="i4",
             ),
             Field.numbers(
                 name="sample_count[1]",
-                value=lambda d, i: resolution.metadata.lattice_shape.y,
+                value=lambda d, i: sample_count[1],
                 encoder=volume_server_encoder,
                 dtype="i4",
             ),
             Field.numbers(
                 name="sample_count[2]",
-                value=lambda d, i: resolution.metadata.lattice_shape.z,
+                value=lambda d, i: sample_count[2],
                 encoder=volume_server_encoder,
                 dtype="i4",
             ),
