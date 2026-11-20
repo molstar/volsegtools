@@ -17,7 +17,7 @@ import ciftools
 import ciftools.serialization
 import numpy as np
 
-from volsegtools._core import CompressionLevel
+from volsegtools._core import AxisValues, CompressionLevel
 from volsegtools._model import PipelineContext
 from volsegtools._processing import DaskBackend
 from volsegtools._storage import Channel, DataSet, create_file_name
@@ -131,6 +131,12 @@ class _VolumeData3DInfoDesc(CategoryDesc):
         data_set = channel.data_set
         resolution = channel.resolution
 
+        origin_values = data_set.metadata.origin.to_tuple()
+        lattice_shape = resolution.metadata.lattice_shape.to_tuple()
+        axis_order = data_set.metadata.axis_order.to_tuple(dtype=int)
+        origin = AxisValues(*[origin_values[i] for i in axis_order])
+        shape = AxisValues(*[lattice_shape[i] for i in axis_order])
+
         return [
             Field.strings(
                 name="name",
@@ -156,19 +162,19 @@ class _VolumeData3DInfoDesc(CategoryDesc):
             ),
             Field.numbers(
                 name="origin[0]",
-                value=lambda d, i: data_set.metadata.origin.x,
+                value=lambda d, i: origin.x,
                 encoder=volume_server_encoder,
                 dtype="i4",
             ),
             Field.numbers(
                 name="origin[1]",
-                value=lambda d, i: data_set.metadata.origin.y,
+                value=lambda d, i: origin.y,
                 encoder=volume_server_encoder,
                 dtype="i4",
             ),
             Field.numbers(
                 name="origin[2]",
-                value=lambda d, i: data_set.metadata.origin.z,
+                value=lambda d, i: origin.z,
                 encoder=volume_server_encoder,
                 dtype="i4",
             ),
@@ -198,19 +204,19 @@ class _VolumeData3DInfoDesc(CategoryDesc):
             ),
             Field.numbers(
                 name="sample_count[0]",
-                value=lambda d, i: resolution.metadata.lattice_shape.x,
+                value=lambda d, i: shape.x,
                 encoder=volume_server_encoder,
                 dtype="i4",
             ),
             Field.numbers(
                 name="sample_count[1]",
-                value=lambda d, i: resolution.metadata.lattice_shape.y,
+                value=lambda d, i: shape.y,
                 encoder=volume_server_encoder,
                 dtype="i4",
             ),
             Field.numbers(
                 name="sample_count[2]",
-                value=lambda d, i: resolution.metadata.lattice_shape.z,
+                value=lambda d, i: shape.z,
                 encoder=volume_server_encoder,
                 dtype="i4",
             ),
