@@ -17,6 +17,7 @@ with :meth:`ProcessingPipelineBuilder.add_volume_converter` or
    ImarisConverter
    NiiConverter
    CIFConverter
+   CZIConverter
    SFFConverter
    MeshConverter
    VRMLConverter

@@ -15,6 +15,7 @@ from ._bundling import (
 from ._conversion import (
     CIFConverter,
     ConverterMap,
+    CZIConverter,
     ImarisConverter,
     MeshConverter,
     MRCConverter,
@@ -247,6 +248,7 @@ __all__ = [
     "to_micrometer",
     "typing",
     "unit_from_str",
+    "CZIConverter",
 ]
 
 _set_public_module(globals())
