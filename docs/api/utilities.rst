@@ -23,6 +23,7 @@ Units, sizes, timing and other helpers.
    to_micrometer
    unit_from_str 
    create_reorder_permutation
+   MultiValueStrEnum
 
 
 Bytes
