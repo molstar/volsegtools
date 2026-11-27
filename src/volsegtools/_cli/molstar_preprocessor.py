@@ -139,7 +139,7 @@ def report_error(msg: str):
     print(f"Error: {msg}", file=sys.stderr)
 
 
-@app.command()
+@app.command(deprecated=True)
 def run(
     volume_source: Annotated[
         list[Path] | None,
@@ -295,7 +295,6 @@ def run(
         ),
     ] = vst.Bytes("5MiB"),
 ) -> None:
-
     if segmentation_source is None:
         segmentation_source = []
     if volume_source is None:

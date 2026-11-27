@@ -54,7 +54,7 @@ jobs:
           --cov-report=html
           tests/unit
       - name: Test CLI startup
-        run: uv run molstar-preprocessor --help
+        run: uv run volsegtools --help
 
   acceptance-tests:
     name: Run acceptance tests

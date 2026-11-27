@@ -85,7 +85,8 @@ docs = [
 ]
 
 [project.scripts]
-molstar-preprocessor = 'volsegtools._cli:app'
+molstar-preprocessor = 'volsegtools._cli:deprecated_app'
+volsegtools = 'volsegtools._cli:main_app'
 
 # -----------------------------------------------------------------------------
 # Hatchling Tool configuration
