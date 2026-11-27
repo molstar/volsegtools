@@ -52,7 +52,7 @@ class TimeFrame:
         if id is None:
             id = len(self.channels)
 
-        if any(map(lambda x: x.metadata.id == id, self.channels)):
+        if any(x.metadata.id == id for x in self.channels):
             raise RuntimeError(
                 f"Channel '{id}' is already present in time frame '{self.metadata.id}"
             )
