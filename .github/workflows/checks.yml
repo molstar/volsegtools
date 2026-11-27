@@ -27,6 +27,51 @@ jobs:
       - name: Check code formatting with Ruff
         run: ruff format --diff
 
+  type-analysis:
+    name: Run type analysis
+    runs-on: ubuntu-latest
+
+    permissions:
+      contents: read
+
+    steps:
+      - uses: actions/checkout@v7
+      - name: Set up uv and Python ${{ matrix.python-version }}
+        uses: astral-sh/setup-uv@v9.0.0
+        with:
+          python-version: ${{ matrix.python-version }}
+          enable-cache: true
+      - name: Install dependencies
+        run: uv sync --all-extras --dev
+      - name: Run mypy
+        run: |
+          uv run mypy \
+            --html-report reports/mypy/html \
+            --txt-report reports/mypy/txt
+      - name: Type coverage summary
+        if: always() # Provide report even if errors found.
+        shell: bash
+        run: |
+          {
+            echo "## Mypy type coverage"
+            echo
+            if [[ -f reports/mypy/txt/index.txt ]]; then
+              echo '```text'
+              cat reports/mypy/txt/index.txt
+              echo '```'
+            else
+              echo "No coverage report generated."
+            fi
+          } >> "$GITHUB_STEP_SUMMARY"
+
+      - name: Upload coverage report
+        if: ${{ startsWith(github.ref, 'refs/tags/v') }}
+        uses: actions/upload-artifact@v7
+        with:
+          name: mypy-type-coverage
+          path: reports/mypy/
+          if-no-files-found: warn
+
   test:
     name: Run unit tests
     timeout-minutes: 20

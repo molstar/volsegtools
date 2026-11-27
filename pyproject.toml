@@ -63,7 +63,7 @@ vrml = [
 [dependency-groups]
 dev = [
     "bumpver>=2026.1132",
-    "mypy>=1.19.1",
+    "mypy[reports]>=1.19.1",
     "pre-commit>=4.3.0",
     "pytest>=8.4.2",
     "pytest-bdd>=9.0.1",
@@ -198,6 +198,16 @@ output = "coverage/coverage.xml"
 
 [tool.coverage.html]
 directory = "coverage/html"
+
+# -----------------------------------------------------------------------------
+# MyPy Tool Configuration
+# -----------------------------------------------------------------------------
+
+[tool.mypy]
+files = ["src"]
+pretty = true
+show_column_numbers = true
+disable_error_code = ["import-untyped"]
 
 # -----------------------------------------------------------------------------
 # Bumpver Tool Configuration
