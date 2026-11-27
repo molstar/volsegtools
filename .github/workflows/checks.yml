@@ -28,7 +28,7 @@ jobs:
         run: ruff format --diff
 
   test:
-    name: Test python package
+    name: Run Python unit tests
     timeout-minutes: 20
     runs-on: ubuntu-latest
     strategy:
@@ -52,5 +52,6 @@ jobs:
           --cov-report=term-missing
           --cov-report=xml
           --cov-report=html
+          tests/unit
       - name: Test CLI startup
         run: uv run molstar-preprocessor --help
