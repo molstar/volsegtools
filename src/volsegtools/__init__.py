@@ -151,6 +151,7 @@ __all__ = [
     "BCIFSerializer",
     "Bytes",
     "CIFConverter",
+    "CZIConverter",
     "Channel",
     "ChannelMetadata",
     "ChunkingMode",
@@ -250,7 +251,6 @@ __all__ = [
     "to_micrometer",
     "typing",
     "unit_from_str",
-    "CZIConverter",
 ]
 
 _set_public_module(globals())
