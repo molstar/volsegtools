@@ -177,6 +177,8 @@ docstring-code-line-length = "dynamic"
 [tool.pytest.ini_options]
 testpaths = ["tests"]
 pythonpath = ["."]
+bdd_features_base_dir = "features/"
+addopts = ["--import-mode=importlib"]
 
 [tool.coverage.run]
 branch = true

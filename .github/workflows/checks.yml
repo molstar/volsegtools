@@ -28,7 +28,7 @@ jobs:
         run: ruff format --diff
 
   test:
-    name: Run Python unit tests
+    name: Run unit tests
     timeout-minutes: 20
     runs-on: ubuntu-latest
     strategy:
@@ -55,3 +55,23 @@ jobs:
           tests/unit
       - name: Test CLI startup
         run: uv run molstar-preprocessor --help
+
+  acceptance-tests:
+    name: Run acceptance tests
+    timeout-minutes: 20
+    runs-on: ubuntu-latest
+    strategy:
+      matrix:
+        python-version: ["3.12"]
+
+    steps:
+      - uses: actions/checkout@v7
+      - name: Set up uv and Python ${{ matrix.python-version }}
+        uses: astral-sh/setup-uv@v9.0.0
+        with:
+          python-version: ${{ matrix.python-version }}
+          enable-cache: true
+      - name: Install dependencies
+        run: uv sync --all-extras --dev
+      - name: Run acceptance tests
+        run: uv run pytest tests/acceptance/
